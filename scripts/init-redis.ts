@@ -16,13 +16,19 @@ const REDIS_KEYS = {
 };
 
 async function initializeRedis() {
+  if (!redis) {
+    console.error('❌ Redis client is not initialized. Check your environment variables.');
+    process.exit(1);
+  }
+
   try {
     console.log('Initializing Redis database...');
     
-    // Test connection
-    await redis.set('test', 'Redis is working!');
-    const test = await redis.get('test');
-    console.log('✅ Redis connection test:', test);
+    // Test the connection
+    const pong = await redis.ping();
+    if (pong !== 'PONG') {
+      throw new Error('Unexpected response from Redis PING');
+    }
     
     // Initialize data structures if they don't exist
     const initData = {
