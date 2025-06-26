@@ -13,6 +13,8 @@ type Config = {
   
   // Database
   databaseUrl: string
+  databaseType: 'postgres' | 'sqlite'
+  sqlitePath?: string
   
   // Rate limiting
   rateLimitEnabled: boolean
@@ -36,6 +38,8 @@ const defaultConfig: Config = {
   
   // Database
   databaseUrl: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/london',
+  databaseType: (process.env.DATABASE_TYPE || 'sqlite') as 'postgres' | 'sqlite',
+  sqlitePath: process.env.SQLITE_PATH || 'london.db',
   
   // Rate limiting
   rateLimitEnabled: process.env.RATE_LIMIT_ENABLED !== 'false',

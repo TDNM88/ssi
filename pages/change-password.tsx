@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import { useUser } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,6 +12,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Badge } from '@/components/ui/badge';
+import Layout from '@/components/layout/Layout';
+import { useMockUser } from '@/lib/mock-user';
 
 const formSchema = z.object({
   password: z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự'),
@@ -22,18 +23,9 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const ChangePassword = () => {
-  const { toast } = useToast();
-  const { user, isLoading } = useUser();
   const router = useRouter();
-  
-  if (isLoading) {
-    return <div>Loading...</div>; // Show loading state
-  }
-  
-  if (!user) {
-    router.push('/login'); // Redirect to login if not authenticated
-    return null;
-  }
+  const { toast } = useToast();
+  const user = useMockUser();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -51,6 +43,7 @@ const ChangePassword = () => {
   };
 
   return (
+    <Layout title="Đổi mật khẩu - London SSI">
     <div className="min-h-screen bg-gray-900 text-white p-4 md:p-8">
       <div className="container mx-auto">
         <div className="flex flex-col md:flex-row gap-8">
@@ -150,7 +143,7 @@ const ChangePassword = () => {
           </div>
         </div>
       </div>
-    </div>
+      </Layout>
   );
 };
 

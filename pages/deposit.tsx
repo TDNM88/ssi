@@ -1,8 +1,7 @@
 "use client";
 
 import React from 'react';
-import { useUser } from '@/hooks/useAuth';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,6 +12,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import Layout from '@/components/layout/Layout';
+import { useMockUser } from '@/lib/mock-user';
 
 const formSchema = z.object({
   amount: z.number().min(1, 'Vui lòng nhập số tiền'),
@@ -20,18 +21,9 @@ const formSchema = z.object({
 });
 
 const Deposit: React.FC = () => {
-  const { toast } = useToast();
-  const { user, isLoading } = useUser();
   const router = useRouter();
-  
-  if (isLoading) {
-    return <div>Loading...</div>; // Show loading state
-  }
-  
-  if (!user) {
-    router.push('/login'); // Redirect to login if not authenticated
-    return null;
-  }
+  const { toast } = useToast();
+  const user = useMockUser();
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -57,7 +49,8 @@ const Deposit: React.FC = () => {
   ];
 
   return (
-    <div className="bg-gray-900 min-h-screen py-8">
+    <Layout title="Nạp tiền - London SSI">
+        <div className="bg-gray-900 min-h-screen py-8">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row gap-8">
           {/* Sidebar */}
@@ -174,7 +167,8 @@ const Deposit: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
+        </div>
+      </Layout>
   );
 };
 

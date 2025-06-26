@@ -17,11 +17,11 @@ const nextConfig = {
     unoptimized: true,
   },
   transpilePackages: ['drizzle-orm', 'pg'],
+  // Server Actions are enabled by default in current Next.js versions
   experimental: {
-    // Enable server actions
-    serverActions: true,
-    // Other experimental configurations can go here
+    // Add any other experimental features here
   },
+  
   // Enable CORS for API routes
   async headers() {
     return [
@@ -37,11 +37,7 @@ const nextConfig = {
       },
     ];
   },
-  // Handle API route errors
-  async onError(error, req, res) {
-    console.error('API Error:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  },
+  // Note: onError should be handled in your API routes or middleware, not in next.config.mjs
   webpack: (config, { isServer, dev }) => {
     // Fixes npm packages that depend on `fs` module
     if (!isServer) {

@@ -15,6 +15,7 @@ export const tradeStatusEnum = pgEnum('trade_status', ['PENDING', 'WON', 'LOST',
 // Users table
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
+  username: text('username').notNull().unique(),
   email: text('email').notNull().unique(),
   password: text('password').notNull(),
   name: text('name'),
@@ -110,16 +111,17 @@ export const loginAttempts = pgTable('login_attempts', {
 const baseUserSchema = createInsertSchema(users);
 
 export const createUserSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-  name: z.string().optional(),
-  phone: z.string().optional(),
-  balance: z.number().optional()
+  username: z.string().min(3, 'Tên đăng nhập phải có ít nhất 3 ký tự'),
+  email: z.string().email('Email không hợp lệ'),
+  password: z.string().min(8, 'Mật khẩu phải có ít nhất 8 ký tự'),
+  name: z.string().min(1, 'Vui lòng nhập họ tên'),
+  phone: z.string().min(10, 'Số điện thoại không hợp lệ'),
+  balance: z.number().optional().default(0)
 });
 
 export const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8)
+  email: z.string().email('Email không hợp lệ'),
+  password: z.string().min(1, 'Vui lòng nhập mật khẩu')
 });
 
 export const updateUserSchema = z.object({

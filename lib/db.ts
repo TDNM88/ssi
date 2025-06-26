@@ -1,27 +1,5 @@
-import { Pool } from 'pg';
-import { drizzle } from 'drizzle-orm/node-postgres';
-import * as schema from './schema';
-import { config } from '../config';
+// This file is now a re-export of the database client
+// For new code, import directly from '@/lib/db/client' instead
 
-// Database connection configuration
-const pool = new Pool({
-  connectionString: config.databaseUrl,
-  ssl: config.nodeEnv === 'production' ? { rejectUnauthorized: false } : false,
-});
-
-// Create a single connection to the database
-export const db = drizzle(pool, { 
-  schema,
-  logger: config.nodeEnv === 'development',
-});
-
-/**
- * Get a database connection
- * @returns A promise that resolves to the database connection
- */
-export async function getDb() {
-  return db;
-}
-
-// Export the pool for direct access if needed
-export { pool as dbPool };
+export * from './db/client';
+export { default } from './db/client';

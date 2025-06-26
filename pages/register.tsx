@@ -15,9 +15,9 @@ const formSchema = z
   .object({
     username: z.string().min(3, "Tên đăng nhập phải có ít nhất 3 ký tự"),
     email: z.string().email("Email không hợp lệ"),
-    password: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự"),
+    password: z.string().min(8, "Mật khẩu phải có ít nhất 8 ký tự"),
     confirmPassword: z.string(),
-    fullName: z.string().min(1, "Vui lòng nhập họ tên"),
+    name: z.string().min(1, "Vui lòng nhập họ tên"),
     phone: z.string().min(10, "Số điện thoại không hợp lệ"),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -39,7 +39,7 @@ export default function Register() {
       email: "",
       password: "",
       confirmPassword: "",
-      fullName: "",
+      name: "",
       phone: "",
     },
   })
@@ -47,23 +47,40 @@ export default function Register() {
   const onSubmit = async (values: FormValues) => {
     setIsLoading(true)
     try {
-      // Mock registration - replace with real API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      toast({
-        title: "Thành công",
-        description: "Đăng ký tài khoản thành công! Vui lòng đăng nhập.",
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: values.email,
+          password: values.password,
+          name: values.name,
+          phone: values.phone,
+          username: values.username,
+        }),
       })
 
-      // Redirect to login page after successful registration
-      setTimeout(() => {
-        router.push("/login")
-      }, 1500)
-    } catch (error) {
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Đăng ký thất bại')
+      }
+
+      // Show success message and redirect to login page after 2 seconds
       toast({
-        title: "Lỗi",
-        description: "Đăng ký thất bại. Vui lòng thử lại!",
-        variant: "destructive",
+        title: 'Đăng ký thành công!',
+        description: 'Vui lòng kiểm tra email để xác thực tài khoản. Bạn sẽ được chuyển hướng về trang đăng nhập.',
+      })
+      setTimeout(() => {
+        router.push('/login')
+      }, 2000)
+    } catch (error) {
+      console.error('Registration error:', error)
+      toast({
+        title: 'Lỗi',
+        description: error instanceof Error ? error.message : 'Đăng ký thất bại. Vui lòng thử lại sau.',
+        variant: 'destructive',
       })
     } finally {
       setIsLoading(false)
@@ -160,18 +177,18 @@ export default function Register() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="fullName" className="text-white">
+                <Label htmlFor="name" className="text-white">
                   Họ và tên *
                 </Label>
                 <Input
-                  id="fullName"
+                  id="name"
                   placeholder="Họ và tên"
                   className="bg-gray-700 border-gray-600 text-white"
-                  {...form.register("fullName")}
+                  {...form.register("name")}
                 />
-                {form.formState.errors.fullName && (
+                {form.formState.errors.name && (
                   <p className="text-red-500 text-sm">
-                    {form.formState.errors.fullName.message}
+                    {form.formState.errors.name.message}
                   </p>
                 )}
               </div>

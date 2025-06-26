@@ -1,34 +1,16 @@
 "use client"
 
 import type React from "react"
-import { useEffect } from "react"
-import { useAuth } from "@/hooks/useAuth"
 import { useRouter } from "next/router"
-import Layout from "../components/layout/Layout"
+import Layout from "@/components/layout/Layout"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import type { User as UserType } from "next-auth"
+import { useMockUser } from "@/lib/mock-user"
 
 const Account: React.FC = () => {
-  const { user } = useAuth()
+  const user = useMockUser()
   const router = useRouter()
-
-  useEffect(() => {
-    if (!user) {
-      router.push("/login")
-    }
-  }, [user, router])
-
-  if (!user) {
-    return (
-      <Layout title="Tài khoản - London SSI">
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-white">Đang chuyển hướng...</div>
-        </div>
-      </Layout>
-    )
-  }
 
   return (
     <Layout title="Tài khoản - London SSI">
@@ -90,18 +72,18 @@ const Account: React.FC = () => {
             <div className="flex-1">
               <div style={{ color: "white", fontSize: "16px" }}>
                 <div className="mb-6">
-                  <span className="mr-4">{user.username}</span>
-                  <span className="mr-4">ID: {user.uid}</span>
+                  <span className="mr-4">{user?.name || user?.username || 'Không tên'}</span>
+                  <span className="mr-4">ID: {user?.uid || user?.id || 'N/A'}</span>
                   <span className="mr-4">
-                    Ngày Đăng ký: {user.createdAt ? new Date(user.createdAt).toLocaleString() : "N/A"}
+                    Ngày Đăng ký: {user?.createdAt ? new Date(user.createdAt).toLocaleString() : "N/A"}
                   </span>
-                  <Badge variant={user.isVerified ? "default" : "destructive"}>
-                    {user.isVerified ? "Đã xác minh" : "Chưa xác minh"}
+                  <Badge variant={user?.isVerified ? "default" : "destructive"}>
+                    {user?.isVerified ? "Đã xác minh" : "Chưa xác minh"}
                   </Badge>
                 </div>
                 <div className="mb-6">
                   <span>Tổng tài sản quy đổi</span>
-                  <h2 className="text-3xl font-bold text-white">{user.balance?.toLocaleString()} VND</h2>
+                  <h2 className="text-3xl font-bold text-white">{(user?.balance ?? 0).toLocaleString()} VND</h2>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Card className="bg-gray-800 border-gray-700">
@@ -112,18 +94,18 @@ const Account: React.FC = () => {
                       <div className="space-y-4">
                         <div className="flex items-center">
                           <span className="text-gray-400 w-32">Tên đăng nhập:</span>
-                          <span className="text-white">{user.username}</span>
+                          <span className="text-white">{user?.username || 'N/A'}</span>
                         </div>
                         
                         <div className="flex items-center">
                           <span className="text-gray-400 w-32">Email:</span>
-                          <span className="text-white">{user.email}</span>
+                          <span className="text-white">{user?.email || 'N/A'}</span>
                         </div>
                         
                         <div className="flex items-center">
                           <span className="text-gray-400 w-32">Trạng thái:</span>
-                          <Badge variant={user.isActive ? 'default' : 'destructive'} className="ml-2">
-                            {user.isActive ? 'Đã kích hoạt' : 'Chưa kích hoạt'}
+                          <Badge variant={user?.isActive ? 'default' : 'destructive'} className="ml-2">
+                            {user?.isActive ? 'Đã kích hoạt' : 'Chưa kích hoạt'}
                           </Badge>
                         </div>
                         
@@ -137,7 +119,7 @@ const Account: React.FC = () => {
                         <div className="flex items-center">
                           <span className="text-gray-400 w-32">Ngày đăng ký:</span>
                           <span className="text-white">
-                            {user.createdAt ? new Date(user.createdAt).toLocaleDateString('vi-VN') : 'N/A'}
+                            {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('vi-VN') : 'N/A'}
                           </span>
                         </div>
                       </div>
@@ -145,9 +127,9 @@ const Account: React.FC = () => {
                   </Card>
                   <div className="bg-gray-700 p-4 rounded">
                     <h4 className="text-lg mb-2">Cài đặt giao dịch</h4>
-                    <p>Số tiền tối thiểu: {user.minimumBet?.toLocaleString()} VND</p>
-                    <p>Nạp tiền tối thiểu: {user.minimumDeposit?.toLocaleString()} VND</p>
-                    <p>Rút tiền tối thiểu: {user.minimumWithdraw?.toLocaleString()} VND</p>
+                    <p>Số tiền tối thiểu: {(user?.minimumBet ?? 0).toLocaleString()} VND</p>
+                    <p>Nạp tiền tối thiểu: {(user?.minimumDeposit ?? 0).toLocaleString()} VND</p>
+                    <p>Rút tiền tối thiểu: {(user?.minimumWithdraw ?? 0).toLocaleString()} VND</p>
                   </div>
                 </div>
               </div>
@@ -155,7 +137,7 @@ const Account: React.FC = () => {
           </div>
         </div>
       </div>
-    </Layout>
+      </Layout>
   )
 }
 

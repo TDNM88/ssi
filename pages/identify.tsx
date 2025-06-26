@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { useUser } from '@/hooks/useAuth';
+import { useMockUser } from '@/lib/mock-user';
 import { useRouter } from 'next/router';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,22 +24,13 @@ const formSchema = z.object({
 
 const Identify: React.FC = () => {
   const { toast } = useToast();
-  const { user, isLoading } = useUser();
+  const user = useMockUser();
   const router = useRouter();
-  
-  if (isLoading) {
-    return <div>Loading...</div>; // Show loading state
-  }
-  
-  if (!user) {
-    router.push('/login'); // Redirect to login if not authenticated
-    return null;
-  }
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      fullName: user.identify?.fullName || '',
+      fullName: user.name || '',
       frontCardImage: '',
       backCardImage: '',
       selfieImage: ''

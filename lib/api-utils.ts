@@ -1,7 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getServerSession } from 'next-auth/next';
 import { ratelimit } from './rate-limit';
-import { authOptions } from './auth-options';
 
 export async function withRateLimit(
   req: NextApiRequest,
@@ -41,40 +39,20 @@ export async function withRateLimit(
   }
 }
 
+// No-op authentication for mock user environment
 export function requireAuth(handler: Function) {
   return async (req: NextApiRequest, res: NextApiResponse) => {
-    const session = await getServerSession(req, res, authOptions);
-    
-    if (!session?.user) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-    
-    return handler(req, res, session);
+    // Always pass through with a mock user object
+    return handler(req, res, { user: { id: '1' } });
   };
 }
 
+// No-op role checking for mock user environment
 export function requireRole(roles: string | string[]) {
-  return (handler: Function) => 
-    async (req: NextApiRequest, res: NextApiResponse, session?: any) => {
-      if (!session) {
-        session = await getServerSession(req, res, authOptions);
-      }
-      
-      if (!session?.user) {
-        return res.status(401).json({ error: 'Unauthorized' });
-      }
-      
-      const userRoles = Array.isArray(session.user.role) 
-        ? session.user.role 
-        : [session.user.role];
-      
-      const allowedRoles = Array.isArray(roles) ? roles : [roles];
-      const hasRole = allowedRoles.some(role => userRoles.includes(role));
-      
-      if (!hasRole) {
-        return res.status(403).json({ error: 'Forbidden' });
-      }
-      
-      return handler(req, res, session);
+  return (handler: Function) => {
+    return async (req: NextApiRequest, res: NextApiResponse) => {
+      // Always pass through with a mock user object
+      return handler(req, res, { user: { id: '1' } });
     };
+  };
 }

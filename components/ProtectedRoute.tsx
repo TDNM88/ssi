@@ -1,20 +1,12 @@
 // components/ProtectedRoute.tsx
-import { useRouter } from "next/router"
-import { useEffect, useState } from "react"
-import { useSession, signOut } from "next-auth/react"
-
-interface UserSession {
-  id: string
-  name?: string | null
-  email?: string | null
-  role: string
-}
+import { useMockUser } from "@/lib/mock-user"
+import { ReactNode, useEffect, useState } from "react"
 
 interface ProtectedRouteProps {
-  children: React.ReactNode
+  children: ReactNode
   adminOnly?: boolean
-  loadingComponent?: React.ReactNode
-  unauthorizedComponent?: React.ReactNode
+  loadingComponent?: ReactNode
+  unauthorizedComponent?: ReactNode
 }
 
 export default function ProtectedRoute({
@@ -27,45 +19,22 @@ export default function ProtectedRoute({
   ),
   unauthorizedComponent = null,
 }: ProtectedRouteProps) {
-  const { data: session, status } = useSession()
-  const router = useRouter()
+  const user = useMockUser()
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null)
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        if (status === 'unauthenticated') {
-          await router.push(`/login?callbackUrl=${encodeURIComponent(router.asPath)}`)
-          return
-        }
-
-        if (status === 'authenticated') {
-          const userRole = (session?.user as UserSession)?.role
-          
-          if (adminOnly && userRole !== 'admin') {
-            setIsAuthorized(false)
-            return
-          }
-          
-          setIsAuthorized(true)
-        }
-      } catch (error) {
-        console.error('Authentication error:', error)
-        // Force sign out on error to prevent infinite loops
-        await signOut({ redirect: false })
-        router.push('/login')
-      }
+    if (adminOnly && user.role !== 'admin') {
+      setIsAuthorized(false)
+    } else {
+      setIsAuthorized(true)
     }
+  }, [user.role, adminOnly])
 
-
-    checkAuth()
-  }, [status, session, adminOnly, router])
-
-  if (status === 'loading' || isAuthorized === null) {
+  if (isAuthorized === null) {
     return <>{loadingComponent}</>
   }
 
-  if (status === 'authenticated' && isAuthorized) {
+  if (isAuthorized) {
     return <>{children}</>
   }
 

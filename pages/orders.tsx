@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useUser } from '@/hooks/useAuth';
+import { useMockUser } from '@/lib/mock-user';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,19 +19,10 @@ interface Order {
 }
 
 const Orders = () => {
-  const { user, isLoading: isUserLoading } = useUser();
+  const user = useMockUser();
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-
-  if (isUserLoading) {
-    return <div>Loading user data...</div>; // Show loading state
-  }
-  
-  if (!user) {
-    router.push('/login'); // Redirect to login if not authenticated
-    return null;
-  }
 
   // Mock data - replace with API call
   const dataSource: Order[] = [

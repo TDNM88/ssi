@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/router"
-import { useAuth } from "@/hooks/useAuth"
+import { useMockUser } from "@/lib/mock-user"
 import { Button } from "./ui/button"
 import {
   DropdownMenu,
@@ -14,10 +14,11 @@ import { User, LogOut, Wallet } from "lucide-react"
 
 export default function Header() {
   const router = useRouter()
-  const { user, signOut: logout } = useAuth()
+  const user = useMockUser()
 
-  const handleLogout = async () => {
-    await logout({ redirect: true, callbackUrl: "/login" })
+  const handleLogout = () => {
+    // In a mock environment, just redirect to home
+    router.push("/")
   }
 
   return (
@@ -32,14 +33,11 @@ export default function Header() {
         </Button>
         
         <div className="flex items-center gap-4">
-          {user && (
-            <div className="hidden md:block text-gray-600">
-              Số dư: <strong className="text-green-600">{user.balance?.toLocaleString() || 0} VND</strong>
-            </div>
-          )}
+          <div className="hidden md:block text-gray-600">
+            Số dư: <strong className="text-green-600">{user.balance?.toLocaleString() || 0} VND</strong>
+          </div>
           
-          {user ? (
-            <DropdownMenu>
+          <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="default" className="gap-2">
                   <User className="h-4 w-4" />
@@ -62,11 +60,6 @@ export default function Header() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          ) : (
-            <Button onClick={() => router.push("/login")}>
-              Đăng nhập / Đăng ký
-            </Button>
-          )}
         </div>
       </div>
     </header>
