@@ -1,9 +1,12 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth/next';
-import { signIn } from 'next-auth/react';
+import { compare } from 'bcryptjs';
 import { loginSchema } from '@/lib/schema';
 import { withRateLimit } from '@/lib/api-utils';
 import { authOptions } from '@/lib/auth-options';
+import { db } from '@/lib/db';
+import { users } from '@/lib/schema';
+import { eq } from 'drizzle-orm';
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -22,17 +25,19 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     const { email, password } = validatedData.data;
 
-    // Authenticate user using NextAuth
-    const result = await signIn('credentials', {
-      redirect: false,
-      email,
-      password,
+    // Find user by email
+    const user = await db.query.users.findFirst({
+      where: eq(users.email, email),
     });
 
-    if (!result?.ok) {
-      return res.status(401).json({ 
-        error: result?.error || 'Invalid email or password' 
-      });
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    // Verify password
+    const isValid = await compare(password, user.password);
+    if (!isValid) {
+      return res.status(401).json({ error: 'Invalid email or password' });
     }
 
     // Get the session to return user data
@@ -42,7 +47,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     }
 
     // Return user data without sensitive information
-    const { password: _, ...userWithoutPassword } = session.user as any;
+    const { password: _, ...userWithoutPassword } = user;
     return res.status(200).json({ user: userWithoutPassword });
   } catch (error) {
     console.error('Login error:', error);
