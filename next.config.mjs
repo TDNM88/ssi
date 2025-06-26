@@ -18,7 +18,29 @@ const nextConfig = {
   },
   transpilePackages: ['drizzle-orm', 'pg'],
   experimental: {
+    // Enable server actions
+    serverActions: true,
     // Other experimental configurations can go here
+  },
+  // Enable CORS for API routes
+  async headers() {
+    return [
+      {
+        // Match all API routes
+        source: '/api/:path*',
+        headers: [
+          { key: 'Access-Control-Allow-Credentials', value: 'true' },
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET,OPTIONS,PATCH,DELETE,POST,PUT' },
+          { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version' },
+        ],
+      },
+    ];
+  },
+  // Handle API route errors
+  async onError(error, req, res) {
+    console.error('API Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   },
   webpack: (config, { isServer, dev }) => {
     // Fixes npm packages that depend on `fs` module

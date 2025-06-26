@@ -36,46 +36,77 @@ export default function Login() {
   })
 
   const onSubmit = async (values: FormValues) => {
-    setIsLoading(true)
+    console.log('Login form submitted with values:', values);
+    setIsLoading(true);
+    
     try {
-      const callbackUrl = searchParams.get("callbackUrl") || "/trade"
-      const result = await signIn("credentials", {
-        redirect: false,
-        email: values.email,
-        password: values.password,
-        callbackUrl,
-      })
+      const callbackUrl = searchParams.get("callbackUrl") || "/trade";
+      console.log('Initiating signIn with callbackUrl:', callbackUrl);
+      
+      // Add a timeout to prevent hanging
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
+      try {
+        const result = await signIn("credentials", {
+          redirect: false,
+          email: values.email,
+          password: values.password,
+          callbackUrl,
+        }, { signal: controller.signal });
+        
+        clearTimeout(timeoutId);
+        
+        console.log('signIn result:', result);
+        
+        if (result?.error) {
+          console.error('Authentication error:', result.error);
+          throw new Error(result.error);
+        }
 
-      if (result?.error) {
-        throw new Error(result.error)
-      }
-
-      if (result?.url) {
-        router.push(callbackUrl)
-        router.refresh()
+        if (result?.url) {
+          console.log('Authentication successful, redirecting to:', callbackUrl);
+          router.push(callbackUrl);
+          router.refresh();
+        } else {
+          console.warn('No URL returned from signIn, but no error occurred');
+          throw new Error('No redirect URL received from authentication');
+        }
+      } catch (error: any) {
+        clearTimeout(timeoutId);
+        if (error.name === 'AbortError') {
+          console.error('Login request timed out');
+          throw new Error('Request timed out. Please try again.');
+        }
+        throw error;
       }
     } catch (error: any) {
-      console.error("Login error:", error)
+      console.error("Login error:", error);
       
-      let errorMessage = "Đã xảy ra lỗi khi đăng nhập"
+      let errorMessage = "Đã xảy ra lỗi khi đăng nhập";
+      const errorMessageLower = error.message?.toLowerCase() || '';
       
-      if (error.message.includes("Email và mật khẩu là bắt buộc")) {
-        errorMessage = "Vui lòng nhập đầy đủ email và mật khẩu"
-      } else if (error.message.includes("Quá nhiều yêu cầu")) {
-        errorMessage = "Quá nhiều lần thử đăng nhập. Vui lòng thử lại sau ít phút."
-      } else if (error.message.includes("tạm thời bị khóa")) {
-        errorMessage = error.message
-      } else if (error.message.includes("không chính xác")) {
-        errorMessage = "Email hoặc mật khẩu không chính xác"
+      if (errorMessageLower.includes('email') || errorMessageLower.includes('mật khẩu')) {
+        errorMessage = error.message;
+      } else if (errorMessageLower.includes('request') || errorMessageLower.includes('fetch')) {
+        errorMessage = "Không thể kết nối đến máy chủ. Vui lòng thử lại sau.";
+      } else if (errorMessageLower.includes('timeout')) {
+        errorMessage = "Yêu cầu đăng nhập đã hết thời gian chờ. Vui lòng thử lại.";
+      } else if (errorMessageLower.includes('network')) {
+        errorMessage = "Lỗi kết nối mạng. Vui lòng kiểm tra kết nối của bạn.";
+      } else if (errorMessageLower.includes('too many requests')) {
+        errorMessage = "Quá nhiều lần thử đăng nhập. Vui lòng thử lại sau ít phút.";
+      } else if (errorMessageLower.includes('locked')) {
+        errorMessage = error.message;
       }
       
       toast({
         title: "Lỗi đăng nhập",
         description: errorMessage,
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
