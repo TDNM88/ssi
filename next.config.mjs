@@ -9,6 +9,10 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  transpilePackages: ['drizzle-orm', 'pg'],
+  experimental: {
+    // Other experimental configurations can go here
+  },
 }
 
 export default nextConfig

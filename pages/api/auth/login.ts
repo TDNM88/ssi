@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { signIn } from 'next-auth/react';
 import { loginSchema } from '@/lib/schema';
 import { withRateLimit } from '@/lib/api-utils';
-import { authOptions } from '@/lib/auth';
+import { authOptions } from '@/lib/auth-options';
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {

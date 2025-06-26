@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth/next';
 import { ratelimit } from './rate-limit';
-import { authOptions } from './auth';
+import { authOptions } from './auth-options';
 
 export async function withRateLimit(
   req: NextApiRequest,

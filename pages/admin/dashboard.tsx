@@ -1,7 +1,7 @@
 // pages/admin/dashboard.tsx
 import { GetServerSideProps } from 'next';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { authOptions } from '@/lib/auth-options';
 import { db } from '@/lib/db';
 import { users, transactions, trades } from '@/lib/schema';
 import { eq, sql, and, gte, desc, isNotNull } from 'drizzle-orm';
