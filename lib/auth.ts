@@ -53,6 +53,7 @@ type SessionUser = {
   role: string
 }
 
+// Export authOptions as a named export
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -205,4 +206,5 @@ export const authOptions: NextAuthOptions = {
   }
 }
 
+// Export the NextAuth instance as default
 export default NextAuth(authOptions)
