@@ -1,8 +1,10 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { db } from '@/lib/db';
 import { users } from '@/lib/schema';
-import { createUser } from '@/lib/auth';
 import { createUserSchema } from '@/lib/schema';
+import { hash } from 'bcryptjs';
+import { sign } from 'jsonwebtoken';
+import { config } from '@/config';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -30,18 +32,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'Email already in use' });
     }
 
+    // Hash password
+    const hashedPassword = await hash(password, 12);
+    
     // Create new user
-    const result = await createUser({
+    const [newUser] = await db.insert(users).values({
       email,
-      password,
-      name,
-    });
+      password: hashedPassword,
+      name: name || null,
+      role: 'user',  // Using lowercase 'user' to match the enum
+      isVerified: false,
+      balance: '0',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }).returning();
 
-    if (!result) {
+    if (!newUser) {
       return res.status(500).json({ error: 'Failed to create user' });
     }
 
-    const { user, token } = result;
+    // Generate JWT token using the JWT secret from config
+    const token = sign(
+      { 
+        id: newUser.id.toString(), 
+        email: newUser.email, 
+        role: newUser.role 
+      },
+      config.jwtSecret,
+      { expiresIn: '7d' }
+    );
+
+    // Return user data without password
+    const { password: _, ...user } = newUser;
 
     // Set HTTP-only cookie
     res.setHeader(

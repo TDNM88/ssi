@@ -56,7 +56,9 @@ export async function processDeposit(userId: number, amount: number, paymentMeth
           status: 'COMPLETED', // In a real app, this would be PENDING until payment is confirmed
           description: `Deposit via ${paymentMethod}`,
           reference: `DEP-${Date.now()}-${Math.random().toString(36).substring(2, 10)}`,
-          metadata: { paymentMethod },
+          metadata: JSON.stringify({ paymentMethod }), // Convert metadata to JSON string
+          createdAt: new Date(),
+          updatedAt: new Date()
         })
         .returning()
         .then((res) => res[0]);
@@ -104,7 +106,9 @@ export async function processWithdrawal(userId: number, amount: number, paymentD
           status: 'PENDING', // Requires manual approval
           description: 'Withdrawal request',
           reference: `WDR-${Date.now()}-${Math.random().toString(36).substring(2, 10)}`,
-          metadata: { paymentDetails },
+          metadata: JSON.stringify({ paymentDetails }), // Convert metadata to JSON string
+          createdAt: new Date(),
+          updatedAt: new Date(),
         })
         .returning()
         .then((res) => res[0]);

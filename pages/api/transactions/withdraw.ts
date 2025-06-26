@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { verifyToken } from '@/lib/auth';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
 import { depositWithdrawSchema } from '@/lib/schema';
 import { processWithdrawal } from '@/lib/transaction';
 
@@ -10,14 +11,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     // Verify authentication
-    const token = req.headers.authorization?.split(' ')[1] || req.cookies.auth_token;
-    if (!token) {
+    const session = await getServerSession(req, res, authOptions);
+    if (!session?.user) {
       return res.status(401).json({ error: 'Not authenticated' });
-    }
-
-    const decoded = verifyToken(token);
-    if (!decoded) {
-      return res.status(401).json({ error: 'Invalid token' });
     }
 
     // Validate request body
@@ -32,14 +28,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { amount, method, transactionDetails } = validatedData.data;
 
     // Process withdrawal
-    const transaction = await processWithdrawal(decoded.id, amount, {
+    const result = await processWithdrawal(parseInt(session.user.id, 10), validatedData.data.amount, {
       method,
       ...transactionDetails,
     });
 
     return res.status(200).json({
       message: 'Withdrawal request received',
-      transaction,
+      transaction: result
     });
   } catch (error) {
     console.error('Withdrawal error:', error);

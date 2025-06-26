@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { verifyToken } from '@/lib/auth';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
 import { getActiveTrades } from '@/lib/trade';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -9,18 +10,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     // Verify authentication
-    const token = req.headers.authorization?.split(' ')[1] || req.cookies.auth_token;
-    if (!token) {
+    const session = await getServerSession(req, res, authOptions);
+    if (!session?.user) {
       return res.status(401).json({ error: 'Not authenticated' });
     }
 
-    const decoded = verifyToken(token);
-    if (!decoded) {
-      return res.status(401).json({ error: 'Invalid token' });
-    }
-
     // Get active trades
-    const activeTrades = await getActiveTrades(decoded.id);
+    const activeTrades = await getActiveTrades(parseInt(session.user.id, 10));
 
     return res.status(200).json({
       trades: activeTrades,

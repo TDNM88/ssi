@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import authenticateUser from '@/lib/auth';
-import { loginUserSchema } from '@/lib/schema';
+import { loginSchema } from '@/lib/schema';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -9,7 +9,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     // Validate request body
-    const validatedData = loginUserSchema.safeParse(req.body);
+    const validatedData = loginSchema.safeParse(req.body);
     if (!validatedData.success) {
       return res.status(400).json({
         error: 'Validation error',

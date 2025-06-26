@@ -1,8 +1,10 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { verifyToken } from '@/lib/auth';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { eq } from 'drizzle-orm';
 import { users } from '@/lib/schema';
+import type { Session } from 'next-auth';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
@@ -10,17 +12,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    // Get token from Authorization header or cookies
-    const token = req.headers.authorization?.split(' ')[1] || req.cookies.auth_token;
+    // Get the session
+    const session = await getServerSession(req, res, authOptions);
     
-    if (!token) {
+    if (!session?.user) {
       return res.status(401).json({ error: 'Not authenticated' });
-    }
-
-    // Verify token
-    const decoded = verifyToken(token);
-    if (!decoded) {
-      return res.status(401).json({ error: 'Invalid token' });
     }
 
     // Get user from database
@@ -36,7 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         createdAt: users.createdAt,
       })
       .from(users)
-      .where(eq(users.id, decoded.id));
+      .where(eq(users.id, parseInt(session.user.id, 10)));
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });

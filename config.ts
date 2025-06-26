@@ -9,6 +9,7 @@ type Config = {
   // Authentication
   nextAuthSecret: string
   nextAuthUrl: string
+  jwtSecret: string
   
   // Database
   databaseUrl: string
@@ -31,6 +32,7 @@ const defaultConfig: Config = {
   // Authentication
   nextAuthSecret: process.env.NEXTAUTH_SECRET || 'your-secret-key',
   nextAuthUrl: process.env.NEXTAUTH_URL || 'http://localhost:3000',
+  jwtSecret: process.env.JWT_SECRET || 'your-jwt-secret-key',
   
   // Database
   databaseUrl: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/london',
