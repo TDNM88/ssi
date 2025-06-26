@@ -1,20 +1,13 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
 import { getActiveTrades } from '@/lib/trade';
+import { withRateLimit, requireAuth } from '@/lib/api-utils';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse, session: any) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    // Verify authentication
-    const session = await getServerSession(req, res, authOptions);
-    if (!session?.user) {
-      return res.status(401).json({ error: 'Not authenticated' });
-    }
-
     // Get active trades
     const activeTrades = await getActiveTrades(parseInt(session.user.id, 10));
 

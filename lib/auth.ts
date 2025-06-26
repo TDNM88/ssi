@@ -5,8 +5,7 @@ import { compare } from "bcryptjs"
 import { eq } from "drizzle-orm"
 import { db } from "./db"
 import { users, loginAttempts } from "./schema"
-import { Ratelimit } from '@upstash/ratelimit'
-import { Redis } from '@upstash/redis'
+import { loginRateLimit } from './rate-limit'
 import { config } from '../config'
 
 // Extend the built-in session types
@@ -32,15 +31,7 @@ declare module 'next-auth/jwt' {
   }
 }
 
-// Rate limiting configuration
-const ratelimit = new Ratelimit({
-  redis: Redis.fromEnv(),
-  limiter: Ratelimit.slidingWindow(config.rateLimitPerMinute, '1 m'),
-  analytics: true,
-  prefix: 'auth-ratelimit',
-})
-
-// Cache for login attempts
+// Cache for login attempts (in-memory fallback)
 const loginAttemptsCache = new Map<string, { count: number; lastAttempt: Date }>()
 const MAX_LOGIN_ATTEMPTS = config.loginAttemptsBeforeLockout
 const LOCKOUT_DURATION = config.lockoutDurationMinutes * 60 * 1000 // Convert minutes to milliseconds
@@ -68,21 +59,24 @@ export const authOptions: NextAuthOptions = {
         }
 
         const ip = (req.headers?.['x-forwarded-for'] as string)?.split(',')[0] || '127.0.0.1'
+        const emailKey = credentials.email.toLowerCase()
         
-        // Check rate limit
-        const { success } = await ratelimit.limit(ip)
-        if (!success) {
-          throw new Error('Too many login attempts. Please try again later.')
+        // Check login attempts rate limit using Redis
+        const { success: rateLimitSuccess, reset } = await loginRateLimit.limit(ip)
+        if (!rateLimitSuccess) {
+          const retryAfter = Math.ceil((reset - Date.now()) / 1000)
+          throw new Error(`Too many login attempts. Please try again in ${retryAfter} seconds.`)
         }
 
-        // Check login attempts in cache
-        const cacheKey = `login-attempts:${credentials.email.toLowerCase()}`
+        // Check login attempts in cache (fallback)
+        const cacheKey = `login-attempts:${emailKey}`
         const cachedAttempts = loginAttemptsCache.get(cacheKey)
         
         if (cachedAttempts && 
             cachedAttempts.count >= MAX_LOGIN_ATTEMPTS && 
             (Date.now() - cachedAttempts.lastAttempt.getTime()) < LOCKOUT_DURATION) {
-          throw new Error('Account locked. Too many failed login attempts. Please try again later.')
+          const timeLeft = Math.ceil((LOCKOUT_DURATION - (Date.now() - cachedAttempts.lastAttempt.getTime())) / 60000)
+          throw new Error(`Account temporarily locked. Too many failed login attempts. Please try again in ${timeLeft} minutes.`)
         }
 
         try {
@@ -101,36 +95,54 @@ export const authOptions: NextAuthOptions = {
           // Verify password
           const isValid = await compare(credentials.password, user.password)
           if (!isValid) {
-            // Update login attempts in cache
+            // Update login attempts in cache and database
             const attempts = (cachedAttempts?.count || 0) + 1
+            const now = new Date()
+            
+            // Update in-memory cache
             loginAttemptsCache.set(cacheKey, {
               count: attempts,
-              lastAttempt: new Date()
+              lastAttempt: now
             })
 
             // Log failed attempt to database
-            await db.insert(loginAttempts).values({
-              userId: user.id,
-              ipAddress: ip,
-              userAgent: req.headers?.['user-agent'] || 'unknown',
-              success: false,
-              createdAt: new Date()
-            })
+            try {
+              await db.insert(loginAttempts).values({
+                userId: user.id,
+                ipAddress: ip,
+                userAgent: req.headers?.['user-agent'] || 'unknown',
+                success: false,
+                createdAt: now
+              })
+            } catch (dbError) {
+              console.error('Failed to log failed login attempt:', dbError)
+            }
 
-            throw new Error('Invalid email or password')
+            const remainingAttempts = MAX_LOGIN_ATTEMPTS - attempts
+            const errorMessage = remainingAttempts > 0 
+              ? `Invalid email or password. ${remainingAttempts} attempts remaining.`
+              : 'Account locked. Too many failed login attempts.'
+            
+            throw new Error(errorMessage)
           }
 
           // Reset login attempts on successful login
           loginAttemptsCache.delete(cacheKey)
 
           // Log successful login
-          await db.insert(loginAttempts).values({
-            userId: user.id,
-            ipAddress: ip,
-            userAgent: req.headers?.['user-agent'] || 'unknown',
-            success: true,
-            createdAt: new Date()
-          })
+          const now = new Date()
+          try {
+            await db.insert(loginAttempts).values({
+              userId: user.id,
+              ipAddress: ip,
+              userAgent: req.headers?.['user-agent'] || 'unknown',
+              success: true,
+              createdAt: now
+            })
+          } catch (dbError) {
+            console.error('Failed to log successful login attempt:', dbError)
+            // Don't fail the login if logging fails
+          }
 
           return {
             id: user.id.toString(),

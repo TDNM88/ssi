@@ -10,7 +10,9 @@
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
-    "migrate": "ts-node --transpile-only scripts/run-migration.ts"
+    "init:redis": "tsx scripts/init-redis.ts",
+    "migrate": "tsx scripts/run-migration.ts",
+    "test:redis": "tsx scripts/test-redis.ts"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.10.0",
@@ -56,6 +58,7 @@
     "clsx": "^2.1.1",
     "cmdk": "1.0.4",
     "date-fns": "^2.30.0",
+    "dotenv": "^16.5.0",
     "drizzle-orm": "^0.44.2",
     "drizzle-zod": "^0.8.2",
     "embla-carousel-react": "8.5.1",
@@ -87,6 +90,7 @@
     "postcss": "^8.5",
     "tailwindcss": "^3.4.17",
     "ts-node": "^10.9.2",
+    "tsx": "^4.20.3",
     "typescript": "^5.8.3"
   }
 }

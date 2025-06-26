@@ -1,6 +1,10 @@
-import { dbPool } from '../lib/db';
-import * as fs from 'fs';
-import * as path from 'path';
+import { dbPool } from '../lib/db.js';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import { readFileSync } from 'fs';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 async function runMigration() {
   const client = await dbPool.connect();
@@ -9,8 +13,8 @@ async function runMigration() {
     await client.query('BEGIN');
     
     // Execute the migration SQL
-    const migrationPath = path.join(__dirname, '..', 'db', 'migrations', '20240626_add_last_login_to_users.sql');
-    const migrationSQL = fs.readFileSync(migrationPath, 'utf-8');
+    const migrationPath = join(__dirname, '..', 'db', 'migrations', '20240626_add_last_login_to_users.sql');
+    const migrationSQL = readFileSync(migrationPath, 'utf-8');
     
     console.log('Running migration...');
     await client.query(migrationSQL);
@@ -27,4 +31,4 @@ async function runMigration() {
   }
 }
 
-runMigration();
+runMigration().catch(console.error);

@@ -1,20 +1,14 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
 import { placeTrade } from '@/lib/trade';
 import { placeTradeSchema } from '@/lib/schema';
+import { withRateLimit, requireAuth } from '@/lib/api-utils';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse, session: any) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    // Verify authentication
-    const session = await getServerSession(req, res, authOptions);
-    if (!session?.user) {
-      return res.status(401).json({ error: 'Not authenticated' });
-    }
 
     // Validate request body
     const validatedData = placeTradeSchema.safeParse(req.body);
@@ -52,4 +46,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       details: errorMessage,
     });
   }
+}
+
+// Apply rate limiting and authentication
+export default async function rateLimitedHandler(req: NextApiRequest, res: NextApiResponse) {
+  return withRateLimit(req, res, async () => {
+    const authedHandler = requireAuth(handler);
+    return authedHandler(req, res);
+  }, 'trades-place', 'Too many trade requests. Please try again later.');
 }

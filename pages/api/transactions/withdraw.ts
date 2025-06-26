@@ -1,20 +1,14 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
 import { depositWithdrawSchema } from '@/lib/schema';
 import { processWithdrawal } from '@/lib/transaction';
+import { withRateLimit, requireAuth } from '@/lib/api-utils';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse, session: any) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    // Verify authentication
-    const session = await getServerSession(req, res, authOptions);
-    if (!session?.user) {
-      return res.status(401).json({ error: 'Not authenticated' });
-    }
 
     // Validate request body
     const validatedData = depositWithdrawSchema.safeParse(req.body);
@@ -28,9 +22,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { amount, method, transactionDetails } = validatedData.data;
 
     // Process withdrawal
-    const result = await processWithdrawal(parseInt(session.user.id, 10), validatedData.data.amount, {
+    const result = await processWithdrawal(parseInt(session.user.id, 10), amount, {
       method,
-      ...transactionDetails,
+      ...(transactionDetails || {}),
     });
 
     return res.status(200).json({
@@ -45,4 +39,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       details: errorMessage,
     });
   }
+}
+
+// Apply rate limiting and authentication
+export default async function rateLimitedHandler(req: NextApiRequest, res: NextApiResponse) {
+  return withRateLimit(req, res, async () => {
+    const authedHandler = requireAuth(handler);
+    return authedHandler(req, res);
+  }, 'transactions-withdraw', 'Too many withdrawal requests. Please try again later.');
 }

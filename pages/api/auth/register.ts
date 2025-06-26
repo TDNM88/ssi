@@ -5,8 +5,9 @@ import { createUserSchema } from '@/lib/schema';
 import { hash } from 'bcryptjs';
 import { sign } from 'jsonwebtoken';
 import { config } from '@/config';
+import { withRateLimit } from '@/lib/api-utils';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -79,4 +80,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.error('Registration error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
+}
+
+// Apply rate limiting to registration endpoint
+export default async function rateLimitedHandler(req: NextApiRequest, res: NextApiResponse) {
+  return withRateLimit(req, res, async () => {
+    return handler(req, res);
+  }, 'auth-register', 'Too many registration attempts. Please try again later.');
 }

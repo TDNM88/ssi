@@ -2,6 +2,10 @@ import { pgTable, serial, text, timestamp, numeric, boolean, integer, pgEnum, in
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 
+// Re-export types for ES modules
+export * from 'drizzle-orm';
+export * from 'drizzle-zod';
+
 // Enums
 export const userRoleEnum = pgEnum('user_role', ['user', 'admin']);
 export const transactionTypeEnum = pgEnum('transaction_type', ['deposit', 'withdrawal', 'trade']);

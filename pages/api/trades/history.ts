@@ -1,19 +1,13 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
 import { getUserTrades } from '@/lib/trade';
+import { withRateLimit, requireAuth } from '@/lib/api-utils';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse, session: any) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    // Verify authentication
-    const session = await getServerSession(req, res, authOptions);
-    if (!session?.user) {
-      return res.status(401).json({ error: 'Not authenticated' });
-    }
 
     // Get query parameters
     const { page = '1', limit = '20' } = req.query;
@@ -43,4 +37,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       details: error instanceof Error ? error.message : 'Unknown error',
     });
   }
+}
+
+// Apply rate limiting and authentication
+export default async function rateLimitedHandler(req: NextApiRequest, res: NextApiResponse) {
+  return withRateLimit(req, res, async () => {
+    const authedHandler = requireAuth(handler);
+    return authedHandler(req, res);
+  }, 'trades-history', 'Too many requests. Please try again later.');
 }
