@@ -4,7 +4,7 @@ import { users } from '@/lib/schema';
 import { createUserSchema } from '@/lib/schema';
 import { hash } from 'bcryptjs';
 import { sign } from 'jsonwebtoken';
-import { config } from '@/config';
+import { config } from '../../../config';
 import { withRateLimit } from '@/lib/api-utils';
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
