@@ -8,6 +8,15 @@ import { users, loginAttempts } from "./schema"
 import { loginRateLimit } from './rate-limit'
 import { config } from '../config'
 
+// Ensure required environment variables are set
+if (!config.nextAuthSecret) {
+  throw new Error('NEXTAUTH_SECRET is not set in environment variables')
+}
+
+if (!config.jwtSecret) {
+  throw new Error('JWT_SECRET is not set in environment variables')
+}
+
 // Extend the built-in session types
 declare module 'next-auth' {
   interface Session extends DefaultSession {
@@ -218,5 +227,8 @@ export const authOptions: NextAuthOptions = {
   }
 }
 
+// Create the NextAuth handler
+const handler = NextAuth(authOptions);
+
 // Export the NextAuth instance as default
-export default NextAuth(authOptions)
+export default handler;
