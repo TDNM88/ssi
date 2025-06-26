@@ -43,42 +43,38 @@ export default function Login() {
       const callbackUrl = searchParams.get("callbackUrl") || "/trade";
       console.log('Initiating signIn with callbackUrl:', callbackUrl);
       
-      // Add a timeout to prevent hanging
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      // Create a promise that will reject after timeout
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => {
+          reject(new Error('Request timed out. Please try again.'));
+        }, 10000); // 10 second timeout
+      });
       
-      try {
-        const result = await signIn("credentials", {
-          redirect: false,
-          email: values.email,
-          password: values.password,
-          callbackUrl,
-        }, { signal: controller.signal });
-        
-        clearTimeout(timeoutId);
-        
-        console.log('signIn result:', result);
-        
-        if (result?.error) {
-          console.error('Authentication error:', result.error);
-          throw new Error(result.error);
-        }
+      // Create the signIn promise
+      const signInPromise = signIn("credentials", {
+        redirect: false,
+        email: values.email,
+        password: values.password,
+        callbackUrl,
+      });
+      
+      // Race the signIn against the timeout
+      const result = await Promise.race([signInPromise, timeoutPromise]) as any;
+      
+      console.log('signIn result:', result);
+      
+      if (result?.error) {
+        console.error('Authentication error:', result.error);
+        throw new Error(result.error);
+      }
 
-        if (result?.url) {
-          console.log('Authentication successful, redirecting to:', callbackUrl);
-          router.push(callbackUrl);
-          router.refresh();
-        } else {
-          console.warn('No URL returned from signIn, but no error occurred');
-          throw new Error('No redirect URL received from authentication');
-        }
-      } catch (error: any) {
-        clearTimeout(timeoutId);
-        if (error.name === 'AbortError') {
-          console.error('Login request timed out');
-          throw new Error('Request timed out. Please try again.');
-        }
-        throw error;
+      if (result?.url) {
+        console.log('Authentication successful, redirecting to:', callbackUrl);
+        router.push(callbackUrl);
+        router.refresh();
+      } else {
+        console.warn('No URL returned from signIn, but no error occurred');
+        throw new Error('No redirect URL received from authentication');
       }
     } catch (error: any) {
       console.error("Login error:", error);
