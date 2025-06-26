@@ -1,29 +1,18 @@
 // components/admin/AdminLayout.tsx
 import { useRouter } from 'next/router';
-import { useEffect, ReactNode } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { ReactNode } from 'react';
+import { useMockUser } from '@/lib/mock-user';
 
 interface AdminLayoutProps {
   children: ReactNode;
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
-  const { user, loading } = useAuth();
+  const user = useMockUser();
   const router = useRouter();
 
-  useEffect(() => {
-    if (!loading && (!user || user.role !== 'admin')) {
-      router.push('/');
-    }
-  }, [user, loading, router]);
-
-  if (loading || !user || user.role !== 'admin') {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
+  // In a real app, you might want to handle admin access differently
+  // For now, we'll just use the mock user as is
 
   return (
     <div className="min-h-screen bg-gray-100">

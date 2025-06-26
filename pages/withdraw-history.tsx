@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useUser } from '@/hooks/useAuth';
+import { useMockUser } from '@/lib/mock-user';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,13 +32,13 @@ const statusText = {
 };
 
 const WithdrawHistory = () => {
-  const { user, isLoading: isUserLoading } = useUser();
+  const user = useMockUser();
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
   const [isLoading, setIsLoading] = useState(false);
 
-  if (isUserLoading) {
+  if (isLoading) {
     return <div>Loading user data...</div>; // Show loading state
   }
   

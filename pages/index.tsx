@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/router"
-import { useAuth } from "@/hooks/useAuth"
+import { useMockUser } from "@/lib/mock-user"
 import Layout from "../components/layout/Layout"
 import { Button } from "@/components/ui/button"
 import { AnimatedButton } from "@/components/ui/animated-button"
@@ -33,22 +33,14 @@ const fadeIn = {
 
 export default function Landing() {
   const router = useRouter()
-  const { user } = useAuth()
+  const user = useMockUser()
 
   const handleGetStarted = () => {
-    if (user) {
-      router.push("/trade")
-    } else {
-      router.push("/register")
-    }
+    router.push("/trade")
   }
 
   const handleLogin = () => {
-    if (user) {
-      router.push("/account")
-    } else {
-      router.push("/login")
-    }
+    router.push("/account")
   }
 
   const [isVisible, setIsVisible] = useState(false);

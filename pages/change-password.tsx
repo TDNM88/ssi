@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -11,8 +11,6 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Badge } from '@/components/ui/badge';
-import Layout from '@/components/layout/Layout';
 import { useMockUser } from '@/lib/mock-user';
 
 const formSchema = z.object({
@@ -43,7 +41,6 @@ const ChangePassword = () => {
   };
 
   return (
-    <Layout title="Đổi mật khẩu - London SSI">
     <div className="min-h-screen bg-gray-900 text-white p-4 md:p-8">
       <div className="container mx-auto">
         <div className="flex flex-col md:flex-row gap-8">
@@ -87,9 +84,9 @@ const ChangePassword = () => {
                     <span>Tên đăng nhập: <span className="font-medium">{user?.username}</span></span>
                     <span>ID: <span className="font-medium">{user?.uid}</span></span>
                     <span>Ngày Đăng ký: <span className="font-medium">{user?.createdAt ? new Date(user.createdAt).toLocaleString() : 'N/A'}</span></span>
-                    <Badge variant={user?.isVerified ? 'default' : 'destructive'} className="ml-2 bg-green-600 hover:bg-green-700">
+                    <span className={`ml-2 px-2 py-1 rounded text-xs font-medium ${user?.isVerified ? 'bg-green-600 text-white' : 'bg-red-600 text-white'}`}>
                       {user?.isVerified ? 'Đã xác minh' : 'Chưa xác minh'}
-                    </Badge>
+                    </span>
                   </div>
 
                   <Form {...form}>
@@ -143,7 +140,7 @@ const ChangePassword = () => {
           </div>
         </div>
       </div>
-      </Layout>
+    </div>
   );
 };
 

@@ -1,13 +1,31 @@
 // pages/admin/dashboard.tsx
 import { GetServerSideProps } from 'next';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth-options';
-import { db } from '@/lib/db';
-import { users, transactions, trades } from '@/lib/schema';
-import { eq, sql, and, gte, desc, isNotNull } from 'drizzle-orm';
 import { format } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+
+// Mock data for admin dashboard
+const mockStats = {
+  totalUsers: 1245,
+  activeUsers: 892,
+  totalDeposits: 1245000000,
+  totalWithdrawals: 895000000,
+  totalTrades: 12450,
+  profit: 350000000,
+  recentTrades: [
+    { id: 1, type: 'deposit', amount: 5000000, status: 'completed', date: new Date() },
+    { id: 2, type: 'withdraw', amount: 2000000, status: 'pending', date: new Date() },
+  ],
+  weeklyData: [
+    { date: 'Mon', deposits: 5, withdrawals: 2, trades: 12 },
+    { date: 'Tue', deposits: 7, withdrawals: 3, trades: 15 },
+    { date: 'Wed', deposits: 4, withdrawals: 1, trades: 10 },
+    { date: 'Thu', deposits: 8, withdrawals: 4, trades: 18 },
+    { date: 'Fri', deposits: 10, withdrawals: 5, trades: 20 },
+    { date: 'Sat', deposits: 12, withdrawals: 7, trades: 25 },
+    { date: 'Sun', deposits: 9, withdrawals: 6, trades: 22 },
+  ]
+};
 
 interface DashboardProps {
   stats: {
@@ -218,133 +236,11 @@ export default function Dashboard({ stats }: DashboardProps) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await getServerSession(context.req, context.res, authOptions);
-
-  if (!session?.user || session.user.role !== 'admin') {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-    };
-  }
-
-  try {
-    // Get total users
-    const [totalUsersResult] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(users);
-
-    // Get active users (logged in last 30 days)
-    const [activeUsersResult] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(users)
-      .where(
-        and(
-          isNotNull(users.lastLogin),
-          gte(users.lastLogin, new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))
-        )
-      );
-
-    // Get total deposits and withdrawals
-    const [depositsResult] = await db
-      .select({ sum: sql<number>`coalesce(sum(cast(amount as decimal)), 0)` })
-      .from(transactions)
-      .where(
-        and(
-          eq(transactions.type, 'deposit'),
-          eq(transactions.status, 'COMPLETED')
-        )
-      );
-
-    const [withdrawalsResult] = await db
-      .select({ sum: sql<number>`coalesce(sum(cast(amount as decimal)), 0)` })
-      .from(transactions)
-      .where(
-        and(
-          eq(transactions.type, 'withdrawal'),
-          eq(transactions.status, 'COMPLETED')
-        )
-      );
-
-    // Get total trades and profit
-    const [tradesResult] = await db
-      .select({ 
-        count: sql<number>`count(*)`,
-        profit: sql<number>`coalesce(sum(case when status = 'WON' then cast(profit as decimal) else 0 end), 0)`
-      })
-      .from(trades);
-
-    // Get recent trades with user details
-    const recentTrades = await db
-      .select({
-        id: trades.id,
-        symbol: trades.symbol,
-        direction: trades.direction,
-        amount: trades.amount,
-        status: trades.status,
-        openTime: trades.openTime,
-        user: {
-          email: users.email,
-          name: users.name,
-        },
-      })
-      .from(trades)
-      .leftJoin(users, eq(trades.userId, users.id))
-      .orderBy(desc(trades.openTime))
-      .limit(10);
-
-    // Get daily stats for the last 7 days
-    const dailyStats = await db
-      .select({
-        date: sql<string>`to_char(timestamp 'epoch' + floor(extract(epoch from "createdAt") / 86400) * 86400 * interval '1 second', 'YYYY-MM-DD')`.as('date'),
-        deposits: sql<number>`COALESCE(sum(case when type = 'deposit' and status = 'COMPLETED' then amount::decimal else 0 end), 0)`.as('deposits'),
-        withdrawals: sql<number>`COALESCE(sum(case when type = 'withdrawal' and status = 'COMPLETED' then amount::decimal else 0 end), 0)`.as('withdrawals'),
-        trades: sql<number>`count(distinct case when type = 'trade' then id end)`.as('trades'),
-      })
-      .from(transactions)
-      .where(gte(transactions.createdAt, new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)))
-      .groupBy(sql`to_char(timestamp 'epoch' + floor(extract(epoch from "createdAt") / 86400) * 86400 * interval '1 second', 'YYYY-MM-DD')`)
-      .orderBy(sql`to_char(timestamp 'epoch' + floor(extract(epoch from "createdAt") / 86400) * 86400 * interval '1 second', 'YYYY-MM-DD')`);
-
-    return {
-      props: {
-        stats: {
-          totalUsers: Number(totalUsersResult?.count) || 0,
-          activeUsers: Number(activeUsersResult?.count) || 0,
-          totalDeposits: Number(depositsResult?.sum) || 0,
-          totalWithdrawals: Number(withdrawalsResult?.sum) || 0,
-          totalTrades: Number(tradesResult?.count) || 0,
-          profit: Number(tradesResult?.profit) || 0,
-          recentTrades: recentTrades.map(trade => ({
-            ...trade,
-            openTime: trade.openTime.toISOString(),
-          })),
-          dailyStats: dailyStats.map(stat => ({
-            ...stat,
-            deposits: Number(stat.deposits) || 0,
-            withdrawals: Number(stat.withdrawals) || 0,
-            trades: Number(stat.trades) || 0,
-          })),
-        },
-      },
-    };
-  } catch (error) {
-    console.error('Error fetching dashboard data:', error);
-    return {
-      props: {
-        stats: {
-          totalUsers: 0,
-          activeUsers: 0,
-          totalDeposits: 0,
-          totalWithdrawals: 0,
-          totalTrades: 0,
-          profit: 0,
-          recentTrades: [],
-          dailyStats: [],
-        },
-      },
-    };
-  }
+// Using static props for admin dashboard with mock data
+export const getServerSideProps: GetServerSideProps = async () => {
+  return {
+    props: {
+      stats: mockStats
+    },
+  };
 };
