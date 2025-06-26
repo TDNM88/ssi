@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, memo } from 'react';
 
-function TradingViewWidget() {
+function TradingViewSymbolOverview() {
   const container = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -68,30 +68,24 @@ function TradingViewWidget() {
       }`;
     
     container.current.appendChild(script);
-            'header_fullscreen_button',
-            'header_settings',
-            'header_indicators',
-            'create_volume_indicator_by_default',
-            'volume_force_overlay',
-          ],
-        });
-      }
-    }
 
     return () => {
-      // Clean up
-      if (containerRef.current) {
-        while (containerRef.current.firstChild) {
-          containerRef.current.removeChild(containerRef.current.firstChild);
-        }
+      if (container.current) {
+        container.current.innerHTML = '';
       }
     };
-  }, [symbol, interval, containerId]);
+  }, []);
 
-  return <div id={containerId} ref={containerRef} className="w-full h-full" />;
-};
+  return (
+    <div className="tradingview-widget-container" ref={container} style={{ width: '100%', height: '100%' }}>
+      <div className="tradingview-widget-container__widget" style={{ width: '100%', height: '100%' }}></div>
+      <div className="tradingview-widget-copyright">
+        <a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank">
+          <span className="blue-text">Track all markets on TradingView</span>
+        </a>
+      </div>
+    </div>
+  );
+}
 
-// Add display name for better debugging
-TradingViewWidgetComponent.displayName = 'TradingViewWidget';
-
-export default memo(TradingViewWidgetComponent);
+export default memo(TradingViewSymbolOverview);
