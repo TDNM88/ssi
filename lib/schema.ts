@@ -1,4 +1,4 @@
-import { pgTable, serial, text, timestamp, numeric, boolean, integer, pgEnum } from 'drizzle-orm/pg-core';
+import { pgTable, serial, text, timestamp, numeric, boolean, integer, pgEnum, index } from 'drizzle-orm/pg-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 
@@ -89,34 +89,39 @@ export const apiKeys = pgTable('api_keys', {
 // Login attempts tracking
 export const loginAttempts = pgTable('login_attempts', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }),
+  userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   ipAddress: text('ip_address').notNull(),
   userAgent: text('user_agent'),
   success: boolean('success').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
-});
-
-// Index for faster lookups by user ID and IP address
-loginAttempts.index('login_attempts_user_id_idx', (table) => table.userId);
-loginAttempts.index('login_attempts_ip_address_idx', (table) => table.ipAddress);
-loginAttempts.index('login_attempts_created_at_idx', (table) => table.createdAt);
+}, (table) => ({
+  // Define indexes directly in the table definition
+  userIdIdx: index('login_attempts_user_id_idx').on(table.userId),
+  ipAddressIdx: index('login_attempts_ip_address_idx').on(table.ipAddress),
+  createdAtIdx: index('login_attempts_created_at_idx').on(table.createdAt),
+}));
 
 // Zod schemas for API validation
-export const createUserSchema = createInsertSchema(users, {
-  email: (schema) => schema.email.email(),
-  password: (schema) => schema.password.min(8),
-  balance: (schema) => schema.balance.optional(),
-}).omit({ id: true, createdAt: true, updatedAt: true });
+// Base user schema without validations
+const baseUserSchema = createInsertSchema(users);
 
-export const loginUserSchema = createSelectSchema(users, {
-  email: (schema) => schema.email.email(),
-  password: (schema) => schema.password.min(8),
-}).pick({ email: true, password: true });
+export const createUserSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+  name: z.string().optional(),
+  phone: z.string().optional(),
+  balance: z.number().optional()
+});
 
-export const updateUserSchema = createInsertSchema(users, {
-  name: (schema) => schema.name.optional(),
-  phone: (schema) => schema.phone.optional(),
-}).omit({ id: true, email: true, password: true, role: true, createdAt: true, updatedAt: true });
+export const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8)
+});
+
+export const updateUserSchema = z.object({
+  name: z.string().min(1).optional(),
+  phone: z.string().min(10).optional()
+}).partial();
 
 export const changePasswordSchema = z.object({
   currentPassword: z.string().min(8),
