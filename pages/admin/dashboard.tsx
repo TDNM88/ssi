@@ -1,6 +1,7 @@
 // pages/admin/dashboard.tsx
 import { GetServerSideProps } from 'next';
-import { getSession } from 'next-auth/react';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { users, transactions, trades } from '@/lib/schema';
 import { eq, sql, and, gte, desc, isNotNull } from 'drizzle-orm';
@@ -218,9 +219,9 @@ export default function Dashboard({ stats }: DashboardProps) {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await getSession(context);
+  const session = await getServerSession(context.req, context.res, authOptions);
 
-  if (!session || session.user.role !== 'admin') {
+  if (!session?.user || session.user.role !== 'admin') {
     return {
       redirect: {
         destination: '/',
