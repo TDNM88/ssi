@@ -11,6 +11,7 @@ const pool = new Pool({
 
 // Create a single connection to the database
 export const db = drizzle(pool, { 
+  // @ts-ignore - Type assertion for schema
   schema,
   logger: config.nodeEnv === 'development',
 });
