@@ -46,7 +46,7 @@ async function initializeRedis() {
     console.error('❌ Failed to initialize Redis:', error);
     process.exit(1);
   } finally {
-    await redis.quit();
+    // No need to call quit() on Upstash Redis client
     process.exit(0);
   }
 }

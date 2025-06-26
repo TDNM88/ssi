@@ -12,13 +12,13 @@ const RATE_LIMIT = {
   // General API rate limiting
   API: {
     REQUESTS_PER_MINUTE: parseInt(process.env.RATE_LIMIT_PER_MINUTE || '100', 10),
-    WINDOW: '1 m', // 1 minute
+    WINDOW: 60, // 60 seconds (1 minute)
     PREFIX: 'ratelimit',
   },
   // Login attempt rate limiting
   LOGIN: {
     MAX_ATTEMPTS: parseInt(process.env.LOGIN_ATTEMPTS_BEFORE_LOCKOUT || '5', 10),
-    WINDOW: `${process.env.LOCKOUT_DURATION_MINUTES || '15'} m`,
+    WINDOW: parseInt(process.env.LOCKOUT_DURATION_MINUTES || '15', 10) * 60, // Convert minutes to seconds
     PREFIX: 'login-ratelimit',
   },
 };
