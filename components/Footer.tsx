@@ -1,10 +1,23 @@
-import { Facebook, Twitter, Instagram, Mail, Phone, MapPin, Clock } from 'lucide-react';
+import { Facebook, Linkedin, Mail, MapPin, Globe, Shield, X } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
   
   const navigation = {
+    left: [
+      { name: 'Quan hệ đầu tư', href: '#' },
+      { name: 'Nghề nghiệp', href: '#' },
+      { name: 'Di động', href: '#' },
+      { name: 'Trung tâm tin tức', href: '#' },
+      { name: 'Tiện ích mở rộng của Chrome', href: '#' },
+    ],
+    right: [
+      { name: 'Liên hệ', href: '#' },
+      { name: 'Báo cáo', href: '#' },
+      { name: 'Thị trường London', href: '#' },
+      { name: 'Bản tin', href: '#' },
+    ],
     main: [
       { name: 'Trang chủ', href: '/' },
       { name: 'Giao dịch', href: '/trade' },
@@ -22,101 +35,88 @@ export default function Footer() {
   };
 
   const social = [
-    {
-      name: 'Facebook',
-      href: '#',
-      icon: Facebook,
-    },
-    {
-      name: 'Twitter',
-      href: '#',
-      icon: Twitter,
-    },
-    {
-      name: 'Instagram',
-      href: '#',
-      icon: Instagram,
-    },
+    { name: 'Facebook', href: '#', icon: Facebook },
+    { name: 'LinkedIn', href: '#', icon: Linkedin },
+    { name: 'X', href: '#', icon: X },
+    { name: 'Mail', href: 'mailto:support@londonssi.com', icon: Mail },
   ];
 
   return (
-    <footer className="bg-gray-900 text-gray-300">
-      <div className="mx-auto max-w-7xl overflow-hidden px-6 py-12 sm:py-16 lg:px-8">
-        <nav className="mb-10 grid grid-cols-2 gap-8 md:grid-cols-4" aria-label="Footer">
-          <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-blue-400">Điều hướng</h3>
-            <ul role="list" className="mt-4 space-y-3">
-              {navigation.main.map((item) => (
+    <footer className="bg-black text-gray-300">
+      <div className="mx-auto max-w-7xl px-6 py-12 sm:py-16 lg:px-8">
+        {/* Heading */}
+        <h2 className="text-center text-blue-400 font-bold uppercase text-sm tracking-wider">
+          Công Ty Cổ Phần Chứng Khoán Thành Phố Hồ Chí Minh
+        </h2>
+        <hr className="my-6 border-gray-700" />
+
+        {/* Main footer grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Navigation lists */}
+          <div className="grid grid-cols-2 gap-8 text-sm">
+            <ul className="space-y-2">
+              {navigation.left.map((item) => (
                 <li key={item.name}>
-                  <Link 
-                    href={item.href}
-                    className="text-sm leading-6 text-gray-300 hover:text-white transition-colors duration-200"
-                  >
+                  <Link href={item.href} className="hover:text-white transition-colors duration-200">
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <ul className="space-y-2">
+              {navigation.right.map((item) => (
+                <li key={item.name}>
+                  <Link href={item.href} className="hover:text-white transition-colors duration-200">
                     {item.name}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
-          <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-blue-400">Hỗ trợ</h3>
-            <ul role="list" className="mt-4 space-y-3">
-              {navigation.support.map((item) => (
-                <li key={item.name}>
-                  <Link 
-                    href={item.href}
-                    className="text-sm leading-6 text-gray-300 hover:text-white transition-colors duration-200"
-                  >
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="md:col-span-2">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-blue-400">Liên hệ</h3>
-            <div className="mt-4 space-y-3">
-              <div className="flex items-start">
-                <MapPin className="h-5 w-5 flex-shrink-0 text-blue-400 mr-3 mt-0.5" />
-                <span className="text-sm leading-6">123 Đường ABC, Quận 1, TP. Hồ Chí Minh, Việt Nam</span>
-              </div>
-              <div className="flex items-center">
-                <Phone className="h-5 w-5 flex-shrink-0 text-blue-400 mr-3" />
-                <a href="tel:+84123456789" className="text-sm hover:text-white transition-colors duration-200">
-                  +84 123 456 789
-                </a>
-              </div>
-              <div className="flex items-center">
-                <Mail className="h-5 w-5 flex-shrink-0 text-blue-400 mr-3" />
-                <a href="mailto:support@londonssi.com" className="text-sm hover:text-white transition-colors duration-200">
-                  support@londonssi.com
-                </a>
-              </div>
-              <div className="flex items-start">
-                <Clock className="h-5 w-5 flex-shrink-0 text-blue-400 mr-3 mt-0.5" />
-                <span className="text-sm leading-6">Thứ 2 - Thứ 6: 8:00 - 17:00</span>
-              </div>
+
+          {/* Spacer for layout on md */}
+          <div className="hidden md:block" />
+
+          {/* Address section */}
+          <div className="space-y-2 text-sm">
+            <div className="flex items-start">
+              <Shield className="h-4 w-4 text-blue-400 mt-1 mr-3" />
+              <span className="leading-5 font-semibold">London - Thành Phố Hồ Chí Minh</span>
+            </div>
+            <div className="flex items-start">
+              <MapPin className="h-4 w-4 text-blue-400 mt-1 mr-3" />
+              <span className="leading-5">Tầng 5, 6 tòa nhà AB Tower, Số 76 Lê Lai, Phường Bến Thành, Quận 1 TP - HCM</span>
+            </div>
+            <div className="flex items-start">
+              <MapPin className="h-4 w-4 text-blue-400 mt-1 mr-3" />
+              <span className="leading-5">18 Patetoner Square, London ECM LS</span>
+            </div>
+            <div className="flex items-start">
+              <Globe className="h-4 w-4 text-blue-400 mt-1 mr-3" />
+              <span className="leading-5">MST : 030219050</span>
             </div>
           </div>
-        </nav>
-        
-        <div className="mt-10 flex justify-center space-x-6">
+        </div>
+
+        {/* Social icons */}
+        <div className="mt-10 flex gap-6">
           {social.map((item) => (
-            <a 
-              key={item.name} 
-              href={item.href} 
-              className="text-gray-400 hover:text-white transition-colors duration-200"
+            <a
+              key={item.name}
+              href={item.href}
               target="_blank"
               rel="noopener noreferrer"
+              className="hover:text-white transition-colors duration-200"
             >
               <span className="sr-only">{item.name}</span>
-              <item.icon className="h-6 w-6" aria-hidden="true" />
+              <item.icon className="h-5 w-5" aria-hidden="true" />
             </a>
           ))}
         </div>
-        
+
+        {/* Copyright */}
         <p className="mt-10 text-center text-xs leading-5 text-gray-400">
-          &copy; {currentYear} London SSI. Bảo lưu mọi quyền.
+          Bản quyền {currentYear} SSI INC. Mọi quyền được bảo lưu.
         </p>
       </div>
     </footer>

@@ -2,96 +2,47 @@
 
 import React, { useEffect, useRef, memo } from 'react';
 
-function TradingViewWidget() {
-  const container = useRef<HTMLDivElement>(null);
+interface TradingViewWidgetProps {
+  symbol?: string;
+  interval?: string;
+  containerId?: string;
+}
+
+const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
+  symbol = 'NASDAQ:AAPL',
+  interval = 'D',
+  containerId = 'tradingview-widget',
+}) => {
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!container.current) return;
+    if (!containerRef.current) return;
 
-    // Clear previous widget if exists
-    while (container.current.firstChild) {
-      container.current.removeChild(container.current.firstChild);
-    }
+    // Clear previous widget
+    containerRef.current.innerHTML = '';
 
-    const script = document.createElement("script");
-    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
-    script.type = "text/javascript";
+    const script = document.createElement('script');
+    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js';
+    script.type = 'text/javascript';
     script.async = true;
-    script.innerHTML = `
-      {
-        "lineWidth": 2,
-        "lineType": 0,
-        "chartType": "area",
-        "fontColor": "rgb(106, 109, 120)",
-        "gridLineColor": "rgba(242, 242, 242, 0.06)",
-        "volumeUpColor": "rgba(34, 171, 148, 0.5)",
-        "volumeDownColor": "rgba(247, 82, 95, 0.5)",
-        "backgroundColor": "#0F0F0F",
-        "widgetFontColor": "#DBDBDB",
-        "upColor": "#22ab94",
-        "downColor": "#f7525f",
-        "borderUpColor": "#22ab94",
-        "borderDownColor": "#f7525f",
-        "wickUpColor": "#22ab94",
-        "wickDownColor": "#f7525f",
-        "colorTheme": "dark",
-        "isTransparent": false,
-        "locale": "en",
-        "chartOnly": false,
-        "scalePosition": "right",
-        "scaleMode": "Normal",
-        "fontFamily": "-apple-system, BlinkMacSystemFont, Trebuchet MS, Roboto, Ubuntu, sans-serif",
-        "valuesTracking": "1",
-        "changeMode": "price-and-percent",
-        "symbols": [
-          ["Apple", "AAPL|1D"],
-          ["Google", "GOOGL|1D"],
-          ["Microsoft", "MSFT|1D"]
-        ],
-        "dateRanges": [
-          "1d|1",
-          "1m|30",
-          "3m|60",
-          "12m|1D",
-          "60m|1W",
-          "all|1M"
-        ],
-        "fontSize": "10",
-        "headerFontSize": "medium",
-        "autosize": true,
-        "width": "100%",
-        "height": "100%",
-        "noTimeScale": false,
-        "hideDateRanges": false,
-        "hideMarketStatus": false,
-        "hideSymbolLogo": false
-      }`;
-    
-    container.current.appendChild(script);
-            'header_fullscreen_button',
-            'header_settings',
-            'header_indicators',
-            'create_volume_indicator_by_default',
-            'volume_force_overlay',
-          ],
-        });
-      }
-    }
+    script.innerHTML = JSON.stringify({
+      symbols: [[symbol.split(':')[1] || symbol, `${symbol}|${interval}`]],
+      chartType: 'area',
+      colorTheme: 'dark',
+      autosize: true,
+      locale: 'en',
+    });
+
+    containerRef.current.appendChild(script);
 
     return () => {
-      // Clean up
-      if (containerRef.current) {
-        while (containerRef.current.firstChild) {
-          containerRef.current.removeChild(containerRef.current.firstChild);
-        }
-      }
+      if (containerRef.current) containerRef.current.innerHTML = '';
     };
-  }, [symbol, interval, containerId]);
+  }, [symbol, interval]);
 
   return <div id={containerId} ref={containerRef} className="w-full h-full" />;
 };
 
-// Add display name for better debugging
-TradingViewWidgetComponent.displayName = 'TradingViewWidget';
+TradingViewWidget.displayName = 'TradingViewWidget';
 
-export default memo(TradingViewWidgetComponent);
+export default memo(TradingViewWidget);

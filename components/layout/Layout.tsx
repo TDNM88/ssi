@@ -1,7 +1,13 @@
 import type React from "react"
 import Head from "next/head"
-import Header from "../Header"
+import dynamic from 'next/dynamic'
 import Footer from "../Footer"
+
+// Dynamically import NewHeader with no SSR
+const NewHeader = dynamic(
+  () => import('@/components/layout/NewHeader'),
+  { ssr: false }
+)
 
 interface LayoutProps {
   children: React.ReactNode
@@ -19,8 +25,8 @@ export default function Layout({ children, title = "London SSI" }: LayoutProps) 
       </Head>
 
       <div className="min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-grow">{children}</main>
+        <NewHeader />
+        <main className="flex-grow pt-20">{children}</main>
         <Footer />
       </div>
     </>
