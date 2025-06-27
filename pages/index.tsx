@@ -126,7 +126,7 @@ export default function Landing() {
           <div className="md:col-span-1">
             <div className="mb-4">
               <iframe
-                width="560"
+                width="100%"
                 height="315"
                 src="https://www.youtube.com/embed/xnCF64dVscM?si=RZOPiZ6gCjNVv6xB"
                 title="YouTube video player"
@@ -136,14 +136,13 @@ export default function Landing() {
               />
             </div>
 
-              <div className="w-full">
-                <iframe
-                  scrolling="no"
-                  allowTransparency={true}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  referrerPolicy="strict-origin-when-cross-origin"
-                  frameBorder={0}
-                  src="https://www.tradingview-widget.com/embed-widget/symbol-info/?locale=vi_VN&amp;symbol=SPREADEX%3AFTSE#%7B%22symbol%22%3A%22SPREADEX%3AFTSE%22%2C%22width%22%3A%22100%25%22%2C%22colorTheme%22%3A%22light%22%2C%22isTransparent%22%3Afalse%2C%22height%22%3A260%2C%22utm_source%22%3A%22london-ssi.com%22%2C%22utm_medium%22%3A%22widget%22%2C%22utm_campaign%22%3A%22symbol-info%22%2C%22page-uri%22%3A%22london-ssi.com%2F%22%7D"
+            <div className="w-full text-xs">
+              <iframe
+                style={{ width: '100vw', height: '320px' }}
+                allowTransparency={true}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                referrerPolicy="strict-origin-when-cross-origin"
+                  src="https://www.tradingview-widget.com/embed-widget/symbol-info/?locale=vi_VN&amp;symbol=SPREADEX%3AFTSE#%7B%22symbol%22%3A%22SPREADEX%3AFTSE%22%2C%22width%22%3A%22100%25%22%2C%22colorTheme%22%3A%22light%22%2C%22isTransparent%22%3Afalse%2C%22height%22%3A320%2C%22utm_source%22%3A%22london-ssi.com%22%2C%22utm_medium%22%3A%22widget%22%2C%22utm_campaign%22%3A%22symbol-info%22%2C%22page-uri%22%3A%22london-ssi.com%2F%22%7D"
                   title="symbol info TradingView widget"
                   lang="en"
                   allowFullScreen
