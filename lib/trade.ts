@@ -13,7 +13,7 @@ export async function placeTrade(
     // Get current price from market data (in a real app, fetch from your market data source)
     const currentPrice = 0; // This should be replaced with actual market data
     
-    return await db.transaction(async (tx) => {
+    return await db.transaction(async (tx: any) => {
       // Check user balance
       const [user] = await tx
         .select({ balance: users.balance })
@@ -68,7 +68,7 @@ export async function placeTrade(
 }
 
 export async function settleTrade(tradeId: number): Promise<boolean> {
-  return await db.transaction(async (tx) => {
+  return await db.transaction(async (tx: any) => {
     // Get the trade with user info
     const [trade] = await tx
       .select()

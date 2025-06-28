@@ -1,20 +1,22 @@
 import { useEffect, useRef } from 'react';
 
 interface TradingViewAdvancedChartProps {
-  symbol?: string; // e.g. "FX:XAUUSD"
-  interval?: string; // e.g. "5" for 5 minutes
+  symbol?: string; // e.g. "TVC:GOLD"
+  interval?: string; // e.g. "15" for 15 minutes
   theme?: 'light' | 'dark';
   height?: number | string;
   interactive?: boolean; // if false, disable user interaction
+  style?: number; // 1 = Candles, 3 = Line, etc.
 }
 
 // Embeds TradingView Advanced Chart widget using external script
 // Docs: https://www.tradingview.com/widget/advanced-chart/
 export default function TradingViewAdvancedChart({
-  symbol = 'FX:XAUUSD',
-  interval = '1',
+  symbol = 'TVC:GOLD',
+  interval = '15',
   theme = 'dark',
   height = 500,
+  style = 1,
   interactive = true,
 }: TradingViewAdvancedChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -42,6 +44,7 @@ export default function TradingViewAdvancedChart({
       hide_legend: true,
       locale: 'en',
       disabled_features: [],
+      style,
       withdateranges: false,
       hide_top_toolbar: false,
     });
@@ -51,7 +54,7 @@ export default function TradingViewAdvancedChart({
     return () => {
       if (containerRef.current) containerRef.current.innerHTML = '';
     };
-  }, [symbol, interval, theme, interactive]);
+  }, [symbol, interval, theme, interactive, style]);
 
   return (
     <div className="relative tradingview-widget-container w-full" style={{ height }} ref={containerRef}>
