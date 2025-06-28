@@ -331,7 +331,7 @@ const Trade = () => {
                 <div className="text-white">{formatCurrency(Number(amount.replace(/,/g, "")))} VND</div>
                 <div className="text-gray-400">Thời gian:</div>
                 <div className="text-white">{timeFrame} phút</div>
-                <div className="text-gray-400">Tỷ lệ thắng:</div>
+                <div className="text-gray-400">Tỷ lệ trả thưởngthưởng:</div>
                 <div className="text-green-500 font-bold">180%</div>
               </div>
             </div>
