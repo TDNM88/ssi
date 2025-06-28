@@ -23,7 +23,7 @@ module.exports = {
             // Note: CSP must be on a single line. Adjust as necessary.
             value: [
               "default-src 'self'",
-              `script-src 'self' ${TRADINGVIEW_SCRIPT}`,
+              `script-src 'self' 'unsafe-eval' ${TRADINGVIEW_SCRIPT}`,
               "style-src 'self' 'unsafe-inline'", // inline styles required by TradingView
               "img-src * data:",
               `connect-src 'self' ${TRADINGVIEW_HTTP} ${TRADINGVIEW_WS} https://widget-sheriff.tradingview-widget.com https://telemetry.tradingview.com`,

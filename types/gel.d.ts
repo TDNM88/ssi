@@ -5,4 +5,11 @@
 declare module 'gel' {
   // Drizzle ORM only uses `DateDuration` generic type, we can safely alias to `string` for now.
   export type DateDuration = string;
+  export type Duration = string;
+  export type LocalDate = string;
+  export type LocalTime = string;
+  export type LocalDateTime = string;
+  export type ZonedDateTime = string;
+  export type Instant = string;
+  export type RelativeDuration = string;
 }
