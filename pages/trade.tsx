@@ -24,10 +24,11 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import TradingViewMarketOverview from "../components/TradingViewMarketOverview";
-import MarketDataTicker from "../components/MarketDataTicker";
+
 import TradingViewSymbolOverview from "../components/TradingViewSymbolOverview";
 import TradingViewAdvancedChart from "../components/TradingViewAdvancedChart";
+import LiquidityTable from "../components/LiquidityTable";
+import TradingViewTickerTape from "@/components/TradingViewTickerTape";
 
 // Constants
 const QUICK_AMOUNTS = [100000, 1000000, 5000000, 10000000, 30000000, 50000000, 100000000, 200000000];
@@ -62,7 +63,6 @@ const Trade = () => {
   } | null>(null);
 
   // Order panel helpers
-  
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
@@ -350,7 +350,7 @@ const Trade = () => {
                 <div className="flex items-center space-x-2">
                   <ChevronDown className="h-4 w-4 text-gray-700" />
                   <CardTitle className="text-gray-900 text-base font-medium">Đặt lệnh</CardTitle>
-                    <span className="bg-green-600 text-white text-xs font-semibold px-2 py-1 rounded ml-auto">ID: {sessionId}</span>
+                  <span className="bg-green-600 text-white text-xs font-semibold px-2 py-1 rounded ml-auto">ID: {sessionId}</span>
                 </div>
               </CardHeader>
               <CardContent>  
@@ -367,13 +367,12 @@ const Trade = () => {
                     </Button>
                     <Input
                       id="amount"
-                      type="number"
+                      type="text"
                       value={formatAmount(amount)}
                       onChange={(e) => {
                         const raw = e.target.value.replace(/,/g, "");
                         if (/^\d*$/.test(raw)) setAmount(raw);
                       }}
-
                       placeholder="Nhập số tiền"
                     />
                     <Button variant="outline" size="icon" onClick={() => addAmount(100000)}>
@@ -450,44 +449,45 @@ const Trade = () => {
               </CardContent>
             </Card>
 
-            <Card className="bg-gray-800 border-gray-700">
+            <Card className="bg-white border-gray-300">
               <CardHeader>
-                <CardTitle className="text-white">Cập nhật</CardTitle>
+                <CardTitle className="text-gray-900">Cập nhật</CardTitle>
               </CardHeader>
               <CardContent>
-                <MarketDataTicker />
+                <LiquidityTable />
               </CardContent>
             </Card>
           </div>
 
           {/* Right Column - 2/3 width */}
           <div className="lg:col-span-8 space-y-6">
-            {/* ----- Chart ----- */}
-            <Card className="bg-gray-800 border-gray-700 h-[500px]">
-              <CardHeader className="pb-2">
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-white">Biểu đồ giá</CardTitle>
-                  <div className="flex items-center space-x-2 text-sm text-gray-400">
-                    <span>Cập nhật: {lastUpdated?.toLocaleTimeString() || "Đang tải..."}</span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-gray-400 hover:text-white"
-                      onClick={() => {
-                        setIsLoading(true);
-                        setTimeout(() => {
-                          setMarketData([
-                            { symbol: "XAU/USD", price: 2337.16, change: 12.5, changePercent: 0.54 },
-                            { symbol: "OIL", price: 85.20, change: -0.45, changePercent: -0.53 },
-                          ]);
-                          setLastUpdated(new Date());
-                          setIsLoading(false);
-                        }, 1000);
-                      }}
-                    >
-                      <RefreshCw className={`h-4 w-4 mr-1 ${isLoading ? "animate-spin" : ""}`} />
-                    </Button>
-                  </div>
+            {/* Market Data Ticker */}
+            <div className="w-full h-[46px] overflow-hidden">
+              <TradingViewTickerTape />
+            </div>
+            <Card className="bg-white border-gray-300 h-[650px] overflow-hidden">
+              <CardHeader>
+                <CardTitle className="text-gray-900">Cập nhật</CardTitle>
+                <div className="flex items-center space-x-2 text-sm text-gray-400">
+                  <span>Cập nhật: {lastUpdated?.toLocaleTimeString() || "Đang tải..."}</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-gray-400 hover:text-white"
+                    onClick={() => {
+                      setIsLoading(true);
+                      setTimeout(() => {
+                        setMarketData([
+                          { symbol: "XAU/USD", price: 2337.16, change: 12.5, changePercent: 0.54 },
+                          { symbol: "OIL", price: 85.20, change: -0.45, changePercent: -0.53 },
+                        ]);
+                        setLastUpdated(new Date());
+                        setIsLoading(false);
+                      }, 1000);
+                    }}
+                  >
+                    <RefreshCw className={`h-4 w-4 mr-1 ${isLoading ? "animate-spin" : ""}`} />
+                  </Button>
                 </div>
               </CardHeader>
               <CardContent className="h-full w-full p-0">
@@ -502,15 +502,15 @@ const Trade = () => {
             </Card>
 
             {/* ----- History ----- */}
-            <Card className="bg-gray-800 border-gray-700">
+            <Card className="relative z-10 bg-white border-gray-300">
               <CardHeader className="pb-2">
-                <CardTitle className="text-white">Lịch sử lệnh</CardTitle>
+                <CardTitle className="text-gray-900">Lịch sử lệnh</CardTitle>
               </CardHeader>
               <CardContent>
                 {/* Table Header */}
                 <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-700 text-sm text-left text-gray-300">
-                    <thead className="bg-gray-700 uppercase text-gray-400">
+                  <table className="min-w-full divide-y divide-gray-300 text-sm text-left text-gray-900">
+                    <thead className="bg-gray-100 uppercase text-gray-600">
                       <tr>
                         <th scope="col" className="px-4 py-2 font-medium">Phiên</th>
                         <th scope="col" className="px-4 py-2 font-medium">Loại</th>
@@ -522,7 +522,7 @@ const Trade = () => {
                       {/* No data */}
                       <tr>
                         <td colSpan={4} className="px-4 py-6 text-center">
-                          <div className="flex flex-col items-center justify-center text-gray-400">
+                          <div className="flex flex-col items-center justify-center text-gray-500">
                             <BarChart2 className="w-8 h-8 mb-2" />
                             <p>Chưa có dữ liệu</p>
                           </div>
@@ -531,16 +531,16 @@ const Trade = () => {
                     </tbody>
                   </table>
                 </div>
-              </CardContent>
-            </Card>
+          </CardContent>
+        </Card>
 
             {/* ----- Liquidity / Market Overview ----- */}
-            <Card className="bg-gray-800 border-gray-700">
+            <Card className="bg-white border-gray-300">
               <CardHeader className="pb-2">
-                <CardTitle className="text-white">Thanh khoản</CardTitle>
+                <CardTitle className="text-gray-900">Thanh khoản</CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <TradingViewMarketOverview />
+                <LiquidityTable />
               </CardContent>
             </Card>
           </div>

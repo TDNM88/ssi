@@ -36,19 +36,19 @@ const MarketDataTicker = () => {
   }, []);
 
   return (
-    <div className="bg-gray-800 py-2 overflow-hidden">
+    <div className="bg-white py-2 overflow-hidden">
       <div className="container mx-auto">
         <div className="flex items-center space-x-8 overflow-x-auto hide-scrollbar py-2">
           {marketData.map((item, index) => (
             <motion.div
               key={item.symbol}
-              className="flex items-center space-x-4 whitespace-nowrap px-4 py-1 rounded-lg hover:bg-gray-700/50 transition-colors"
+              className="flex items-center space-x-4 whitespace-nowrap px-4 py-1 rounded-lg hover:bg-gray-100 transition-colors"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <span className="text-gray-300 font-medium">{item.symbol}</span>
-              <span className="text-white font-bold">
+              <span className="text-gray-600 font-medium">{item.symbol}</span>
+              <span className="text-gray-900 font-bold">
                 {item.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
               <span className={`text-sm font-medium ${item.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
