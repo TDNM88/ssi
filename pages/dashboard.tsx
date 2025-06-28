@@ -16,7 +16,7 @@ import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as
 
 interface TradeRecord {
   id: string;
-  session: number;
+  session: string;
   userId: string;
   direction: "UP" | "DOWN";
   amount: number;
@@ -67,7 +67,8 @@ export default function Dashboard() {
       if (!raw || history.length === 0) {
         const demo: TradeRecord[] = Array.from({ length: 100 }).map((_, i) => {
           const timestamp = Date.now() - i * 3600000; // Cách nhau 1 giờ
-          const session = Number(`${Math.floor(timestamp / 1000)}`);
+          const sessionIndex = Math.floor(i / 5) + 1; // mỗi phiên có 5 lệnh
+          const session = sessionIndex.toString().padStart(7, "0");
           const direction = Math.random() > 0.5 ? "UP" : "DOWN";
           const amount = Math.floor(Math.random() * 4900000) + 100000; // 100K-5M
           const rand = Math.random();
