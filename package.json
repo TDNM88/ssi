@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.10.0",
+    "@headlessui/react": "^2.2.4",
     "@hookform/resolvers": "^3.9.1",
     "@libsql/client": "^0.15.9",
     "@radix-ui/react-accordion": "1.2.2",
@@ -48,6 +49,7 @@
     "@radix-ui/react-toggle-group": "1.1.1",
     "@radix-ui/react-tooltip": "1.1.6",
     "@shadcn/ui": "latest",
+    "@tremor/react": "^3.18.7",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/pg": "^8.15.4",
@@ -96,5 +98,11 @@
     "ts-node": "^10.9.2",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "better-sqlite3",
+      "esbuild"
+    ]
   }
 }
