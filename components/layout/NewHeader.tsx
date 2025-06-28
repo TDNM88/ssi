@@ -44,7 +44,7 @@ const NewHeader = () => {
                   src="/logo.png" 
                   alt="London SSI" 
                   width={120} 
-                  height={54} 
+                  height={70} 
                   className="mix-blend-multiply"
                 />
               </div>
@@ -52,7 +52,7 @@ const NewHeader = () => {
               <nav className="hidden md:flex items-center space-x-3">
                 <button 
                   className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-blue-600 font-semibold underline underline-offset-4 decoration-2 hover:bg-gray-50"
-                  onClick={() => router.push('/index')}
+                  onClick={() => router.push('/')}
                 >
                   Trang chủ
                 </button>

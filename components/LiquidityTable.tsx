@@ -15,6 +15,16 @@ const PAIRS = [
   "PLA/USD",
   "EUR/USD",
   "BTC/USD",
+  "ETH/USD",
+  "LTC/USD",
+  "XRP/USD",
+  "BCH/USD",
+  "EOS/USD",
+  "XMR/USD",
+  "ADA/USD",
+  "TRX/USD",
+  "XLM/USD",
+  "BUSD/USD",
 ];
 
 // Generates a random VND quantity ~ 400–700 million rounded to 500,000

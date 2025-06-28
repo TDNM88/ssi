@@ -41,6 +41,7 @@ const TIME_FRAMES = [
 const Trade = () => {
   const { toast } = useToast();
   const user = useMockUser();
+  const [balance, setBalance] = useState<number>(user?.balance ?? 0);
   const router = useRouter();
   
   const [isLoading, setIsLoading] = useState(true);
@@ -56,6 +57,7 @@ const Trade = () => {
   ]);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [activeTrade, setActiveTrade] = useState<{
+    id: number;
     direction: "UP" | "DOWN";
     entryPrice: number;
     amount: number;
@@ -114,6 +116,20 @@ const Trade = () => {
     profit?: number;
   }>({ status: "idle" });
 
+  // ----- Trade history -----
+  interface TradeHistoryRecord {
+    id: number; // unique identifier
+    session: number;
+    direction: "UP" | "DOWN";
+    amount: number;
+    status: "pending" | "win" | "lose";
+    profit: number;
+  }
+  const [tradeHistory, setTradeHistory] = useState<TradeHistoryRecord[]>([]);
+  const addPendingHistory = (record: TradeHistoryRecord) => setTradeHistory(prev => [...prev, record]);
+  const updateHistoryStatus = (id: number, status: "win" | "lose", profit: number) =>
+    setTradeHistory(prev => prev.map(r => r.id === id ? { ...r, status, profit } : r));
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -158,6 +174,13 @@ const Trade = () => {
           amount: activeTrade.amount,
           profit,
         });
+        // Add to history
+        updateHistoryStatus(activeTrade.id, isWin ? "win" : "lose", profit);
+        if (isWin) {
+          setBalance(prev => prev + activeTrade.amount + profit);
+        } else {
+          setBalance(prev => prev - activeTrade.amount);
+        }
         setActiveTrade(null);
         clearInterval(timer);
         setTimeout(() => setTradeResult(prev => ({ ...prev, status: "idle" })), 5000);
@@ -196,7 +219,13 @@ const Trade = () => {
     if (!selectedAction) return;
     const entryPrice = marketData.find(md => md.symbol === "XAU/USD")?.price || 0;
     const tradeAmount = Number(amount.replace(/,/g, ""));
+    const tradeId = Date.now();
+    setBalance(prev => prev - tradeAmount);
+    // add pending record to history
+    addPendingHistory({ id: tradeId, session: sessionId, direction: selectedAction, amount: tradeAmount, status: "pending", profit: 0 });
+
     setActiveTrade({
+      id: tradeId,
       direction: selectedAction,
       entryPrice,
       amount: tradeAmount,
@@ -341,7 +370,7 @@ const Trade = () => {
               <CardContent className="py-6 px-4">
                 <div className="flex items-center justify-between text-gray-900 text-lg font-semibold uppercase">
                   <span>SỐ DƯ:</span>
-                  <span>{formatCurrency(user?.balance ?? 0)} VND</span>
+                  <span>{formatCurrency(balance)} VND</span>
                 </div>
               </CardContent>
             </Card>
@@ -519,20 +548,30 @@ const Trade = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {/* No data */}
-                      <tr>
-                        <td colSpan={4} className="px-4 py-6 text-center">
-                          <div className="flex flex-col items-center justify-center text-gray-500">
-                            <BarChart2 className="w-8 h-8 mb-2" />
-                            <p>Chưa có dữ liệu</p>
-                          </div>
-                        </td>
-                      </tr>
+                      {tradeHistory.length === 0 ? (
+                        <tr>
+                          <td colSpan={4} className="px-4 py-6 text-center">
+                            <div className="flex flex-col items-center justify-center text-gray-500">
+                              <BarChart2 className="w-8 h-8 mb-2" />
+                              <p>Chưa có dữ liệu</p>
+                            </div>
+                          </td>
+                        </tr>
+                      ) : (
+                        tradeHistory.map((rec, idx) => (
+                          <tr key={idx} className="odd:bg-white even:bg-gray-50">
+                            <td className="px-4 py-2 whitespace-nowrap">{rec.session}</td>
+                            <td className={`px-4 py-2 font-semibold ${rec.direction === 'UP' ? 'text-green-600' : 'text-red-600'}`}>{rec.direction === 'UP' ? 'LÊN' : 'XUỐNG'}</td>
+                            <td className="px-4 py-2 whitespace-nowrap">{formatCurrency(rec.amount)} VND</td>
+                            <td className={`px-4 py-2 font-semibold ${rec.status === 'pending' ? 'text-gray-500' : rec.status === 'win' ? 'text-green-600' : 'text-red-600'}`}>{rec.status === 'pending' ? 'Đợi kết quả' : rec.status === 'win' ? 'Thắng' : 'Thua'}</td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </table>
                 </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
 
             {/* ----- Liquidity / Market Overview ----- */}
             <Card className="bg-white border-gray-300">

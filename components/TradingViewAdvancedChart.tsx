@@ -82,7 +82,6 @@ export default function TradingViewAdvancedChart({
   return (
     <div className="relative tradingview-widget-container w-full" style={{ height }} ref={containerRef}>
       <div className="tradingview-widget-container__widget" style={{ height }} />
-      {/* Non-interactive mode blocked via pointer-events:none. Overlay hides crosshair */}
       {!interactive && (
         <div
           className="absolute inset-0 z-10 select-none touch-none"
