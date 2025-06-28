@@ -45,7 +45,7 @@ export async function updateTransactionStatus(
 export async function processDeposit(userId: number, amount: number, paymentMethod: string): Promise<Transaction | null> {
   try {
     // Start a transaction
-    return await db.transaction(async (tx) => {
+    return await db.transaction(async (tx: any) => {
       // Create transaction record
       const transaction = await tx
         .insert(transactions)
@@ -61,7 +61,7 @@ export async function processDeposit(userId: number, amount: number, paymentMeth
           updatedAt: new Date()
         })
         .returning()
-        .then((res) => res[0]);
+        .then((res: Transaction[]) => res[0]);
 
       if (!transaction) throw new Error('Failed to create transaction');
 
@@ -85,7 +85,7 @@ export async function processDeposit(userId: number, amount: number, paymentMeth
 export async function processWithdrawal(userId: number, amount: number, paymentDetails: any): Promise<Transaction | null> {
   try {
     // Start a transaction
-    return await db.transaction(async (tx) => {
+    return await db.transaction(async (tx: any) => {
       // Check if user has sufficient balance
       const [user] = await tx
         .select({ balance: users.balance })
@@ -111,7 +111,7 @@ export async function processWithdrawal(userId: number, amount: number, paymentD
           updatedAt: new Date(),
         })
         .returning()
-        .then((res) => res[0]);
+        .then((res: Transaction[]) => res[0]);
 
       if (!transaction) throw new Error('Failed to create withdrawal transaction');
 
