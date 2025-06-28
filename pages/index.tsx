@@ -138,7 +138,7 @@ export default function Landing() {
 
             <div className="w-full text-xs">
               <iframe
-                style={{ width: '100vw', height: '320px' }}
+                style={{ width: '̀80vw', height: '320px' }}
                 allowTransparency={true}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 referrerPolicy="strict-origin-when-cross-origin"
