@@ -142,7 +142,7 @@ const NewHeader = () => {
                 <button 
                   className="text-left py-2 px-2 text-blue-600 font-medium hover:bg-blue-50 rounded"
                   onClick={() => {
-                    router.push('/news');
+                    router.push('/');
                     setIsMenuOpen(false);
                   }}
                 >

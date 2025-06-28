@@ -14,11 +14,11 @@ import * as z from "zod"
 const formSchema = z
   .object({
     username: z.string().min(3, "Tên đăng nhập phải có ít nhất 3 ký tự"),
-    email: z.string().email("Email không hợp lệ"),
-    password: z.string().min(8, "Mật khẩu phải có ít nhất 8 ký tự"),
+    password: z
+      .string()
+      .min(6, "Mật khẩu phải có ít nhất 6 ký tự")
+      .max(16, "Mật khẩu không quá 16 ký tự"),
     confirmPassword: z.string(),
-    name: z.string().min(1, "Vui lòng nhập họ tên"),
-    phone: z.string().min(10, "Số điện thoại không hợp lệ"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Mật khẩu xác nhận không khớp",
@@ -36,11 +36,8 @@ export default function Register() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: "",
-      email: "",
       password: "",
       confirmPassword: "",
-      name: "",
-      phone: "",
     },
   })
 
@@ -53,11 +50,8 @@ export default function Register() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: values.email,
-          password: values.password,
-          name: values.name,
-          phone: values.phone,
           username: values.username,
+          password: values.password,
         }),
       })
 
@@ -123,24 +117,6 @@ export default function Register() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-white">
-                  Email *
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Email"
-                  className="bg-gray-700 border-gray-600 text-white"
-                  {...form.register("email")}
-                />
-                {form.formState.errors.email && (
-                  <p className="text-red-500 text-sm">
-                    {form.formState.errors.email.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
                 <Label htmlFor="password" className="text-white">
                   Mật khẩu *
                 </Label>
@@ -172,40 +148,6 @@ export default function Register() {
                 {form.formState.errors.confirmPassword && (
                   <p className="text-red-500 text-sm">
                     {form.formState.errors.confirmPassword.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-white">
-                  Họ và tên *
-                </Label>
-                <Input
-                  id="name"
-                  placeholder="Họ và tên"
-                  className="bg-gray-700 border-gray-600 text-white"
-                  {...form.register("name")}
-                />
-                {form.formState.errors.name && (
-                  <p className="text-red-500 text-sm">
-                    {form.formState.errors.name.message}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phone" className="text-white">
-                  Số điện thoại *
-                </Label>
-                <Input
-                  id="phone"
-                  placeholder="Số điện thoại"
-                  className="bg-gray-700 border-gray-600 text-white"
-                  {...form.register("phone")}
-                />
-                {form.formState.errors.phone && (
-                  <p className="text-red-500 text-sm">
-                    {form.formState.errors.phone.message}
                   </p>
                 )}
               </div>
