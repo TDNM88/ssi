@@ -39,17 +39,40 @@ export default function TradingViewAdvancedChart({
       symbol,
       timezone: 'Etc/UTC',
       allow_symbol_change: false,
-      hide_side_toolbar: false,
+      hide_side_toolbar: interactive ? false : true,
       hide_volume: false,
-      hide_legend: true,
+      hide_legend: false,
       locale: 'en',
-      disabled_features: [],
+      disabled_features: interactive ? [] : [
+        "header_widget",
+        "header_symbol_search",
+        "header_compare",
+        "header_indicators",
+        "header_settings",
+        "header_fullscreen_button",
+        "header_chart_type",
+        "header_interval_dialog_button",
+        "header_undo_redo",
+        "header_screenshot",
+        "timeframes_toolbar",
+        "left_toolbar",
+        "edit_buttons_in_legend",
+        "use_localstorage_for_settings",
+        "chart_zoom",
+        "chart_pan",
+        "mousewheel_zoom",
+      ],
       style,
       withdateranges: false,
       hide_top_toolbar: false,
     });
 
     containerRef.current.appendChild(script);
+
+    if (!interactive && containerRef.current) {
+      // Disable all pointer events to prevent any interaction (zoom, pan, etc.)
+      containerRef.current.style.pointerEvents = 'none';
+    }
 
     return () => {
       if (containerRef.current) containerRef.current.innerHTML = '';
@@ -59,8 +82,15 @@ export default function TradingViewAdvancedChart({
   return (
     <div className="relative tradingview-widget-container w-full" style={{ height }} ref={containerRef}>
       <div className="tradingview-widget-container__widget" style={{ height }} />
+      {/* Non-interactive mode blocked via pointer-events:none. Overlay hides crosshair */}
       {!interactive && (
-        <div className="absolute inset-0 z-10" style={{ pointerEvents: 'auto' }} />
+        <div
+          className="absolute inset-0 z-10 select-none touch-none"
+          style={{ pointerEvents: 'auto' }}
+          onWheelCapture={(e) => e.preventDefault()}
+          onTouchMove={(e) => e.preventDefault()}
+          onMouseDown={(e) => e.preventDefault()}
+        />
       )}
     </div>
   );

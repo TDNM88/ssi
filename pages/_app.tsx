@@ -8,6 +8,7 @@ import { MockUserContext, useMockUser } from "@/lib/mock-user"
 
 function MyApp({ Component, pageProps }: AppProps) {
   const [mounted, setMounted] = useState(false)
+  const mockUser = useMockUser();
 
   // Set mounted to true on component mount
   useEffect(() => {
@@ -23,7 +24,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     )
   }
 
-  const mockUser = useMockUser();
+
   
   return (
     <MockUserContext.Provider value={mockUser}>
