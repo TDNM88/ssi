@@ -11,6 +11,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Badge } from '@/components/ui/badge';
 import Layout from '@/components/layout/Layout';
+import { useRouter } from 'next/navigation';
 import { useMockUser } from '@/lib/mock-user';
 
 const formSchema = z.object({
@@ -20,6 +21,7 @@ const formSchema = z.object({
 });
 
 const Bank = () => {
+  const router = useRouter();
   const { toast } = useToast();
   const user = useMockUser();
   
