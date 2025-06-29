@@ -274,10 +274,6 @@ const Trade = () => {
     setIsConfirming(false);
     setSelectedAction(null);
     setAmount("");
-    toast({
-      title: "Đặt lệnh thành công",
-      description: `Đã đặt lệnh ${selectedAction === "UP" ? "LÊN" : "XUỐNG"} với giá ${entryPrice.toFixed(2)}`,
-    });
   };
 
   const formatCurrency = (value: number) => {
@@ -353,33 +349,17 @@ const Trade = () => {
 
         <Dialog open={isConfirming} onOpenChange={setIsConfirming}>
           <DialogContent className="sm:max-w-[425px] bg-gray-800">
-            <DialogHeader>
-              <DialogTitle className="text-white">Xác nhận đặt lệnh</DialogTitle>
-              <DialogDescription className="text-gray-300">
-                Bạn có chắc chắn muốn đặt lệnh {selectedAction === "UP" ? "LÊN" : "XUỐNG"} với số tiền {formatCurrency(Number(amount.replace(/,/g, "")))} VND?
-              </DialogDescription>
+            <DialogHeader className="flex items-center justify-center">
+              <DialogTitle className="text-white text-center">Phiên hiện tại <span className="text-red-500">{sessionId}</span></DialogTitle>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="text-gray-400">Loại lệnh:</div>
-                <div className={`font-bold ${
-                  selectedAction === "UP" ? "text-green-500" : "text-red-500"
-                }`}>
-                  {selectedAction === "UP" ? "LÊN" : "XUỐNG"}
-                </div>
-                <div className="text-gray-400">Số tiền:</div>
-                <div className="text-white">{formatCurrency(Number(amount.replace(/,/g, "")))} VND</div>
-                <div className="text-gray-400">Thời gian:</div>
-                <div className="text-white">{timeFrame} phút</div>
-                <div className="text-gray-400">Tỷ lệ trả thưởng:</div>
-                <div className="text-green-500 font-bold">190%</div>
-              </div>
-            </div>
+            <DialogDescription className="text-gray-300 text-center">
+              XÁC NHẬN
+            </DialogDescription>
             <DialogFooter className="flex gap-2">
               <Button
                 type="button"
                 variant="outline"
-                className="flex-1"
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white"
                 onClick={() => setIsConfirming(false)}
               >
                 Hủy
@@ -492,29 +472,6 @@ const Trade = () => {
                     XUỐNG <ArrowDown className="h-5 w-5 ml-2" />
                   </Button>
                 </div>
-
-                {activeTrade && (
-                  <div className="mt-6 p-4 bg-gray-700 rounded-lg">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-gray-300">Lệnh đang mở</span>
-                      <span className="text-sm text-gray-400">
-                        Còn lại: {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, "0")}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div className="text-gray-400">Loại lệnh:</div>
-                      <div className={`font-bold ${
-                        activeTrade.direction === "UP" ? "text-green-500" : "text-red-500"
-                      }`}>
-                        {activeTrade.direction === "UP" ? "LÊN" : "XUỐNG"}
-                      </div>
-                      <div className="text-gray-400">Giá vào:</div>
-                      <div className="text-white">{activeTrade.entryPrice.toFixed(2)}</div>
-                      <div className="text-gray-400">Số tiền:</div>
-                      <div className="text-white">{formatCurrency(activeTrade.amount)} VND</div>
-                    </div>
-                  </div>
-                )}
               </CardContent>
             </Card>
 
@@ -590,7 +547,7 @@ const Trade = () => {
             {/* ----- Liquidity / Market Overview ----- */}
             <Card className="bg-white border-gray-300">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm text-gray-900">Thanh khoản</CardTitle>
+              <CardTitle className="text-sm text-gray-900">Thanh khoản</CardTitle>
               </CardHeader>
               <CardContent className="p-0">
                 <LiquidityTable />

@@ -10,7 +10,9 @@ import {
   ToastViewport,
 } from "@/components/ui/toast"
 
-export function Toaster() {
+type ToastPosition = "top-right" | "top-left" | "bottom-right" | "bottom-left";
+
+export function Toaster({ position = "top-right" }: { position?: ToastPosition }) {
   const { toasts } = useToast()
 
   return (
@@ -29,7 +31,11 @@ export function Toaster() {
           </Toast>
         )
       })}
-      <ToastViewport />
+      <ToastViewport className={
+          position === "top-right" ? "fixed top-4 right-4" :
+          position === "top-left" ? "fixed top-4 left-4" :
+          position === "bottom-right" ? "fixed bottom-4 right-4" : "fixed bottom-4 left-4"
+        } />
     </ToastProvider>
   )
 }

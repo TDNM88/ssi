@@ -29,7 +29,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <MockUserContext.Provider value={mockUser}>
       <Component {...pageProps} />
-      <Toaster />
+      <Toaster position="top-right" />
     </MockUserContext.Provider>
   )
 }

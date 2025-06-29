@@ -1,246 +1,367 @@
 // pages/admin/dashboard.tsx
 import { GetServerSideProps } from 'next';
+import { useState } from 'react';
 import { format } from 'date-fns';
+import { 
+  LayoutDashboard, 
+  Users, 
+  Clock, 
+  DollarSign,
+  Wallet,
+  Settings,
+  X,
+  Menu,
+} from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Button } from '@/components/ui/button';
 
 // Mock data for admin dashboard
-const mockStats = {
-  totalUsers: 1245,
-  activeUsers: 892,
-  totalDeposits: 1245000000,
-  totalWithdrawals: 895000000,
-  totalTrades: 12450,
-  profit: 350000000,
-  recentTrades: [
-    { id: 1, type: 'deposit', amount: 5000000, status: 'completed', date: new Date() },
-    { id: 2, type: 'withdraw', amount: 2000000, status: 'pending', date: new Date() },
+const mockData = {
+  customers: [
+    { id: 'NguyenTran123', balance: 0, ipLogin: '171.251.237.143, 172.7124.65', status: 'Trạng thái' },
+    { id: 'vuthanhtra', balance: 420000, ipLogin: '171.224.178.192, 104.2317.39', status: 'Trạng thái' },
+    { id: 'NguyenThiTuyet', balance: 0, ipLogin: '2a09:bacd:4592:63c:30, 172.68.2116', status: 'Trạng thái' },
+    { id: 'MaThiThanh', balance: 0, ipLogin: '171.254.200.151, 172.68.164.127', status: 'Trạng thái' },
   ],
-  weeklyData: [
-    { date: 'Mon', deposits: 5, withdrawals: 2, trades: 12 },
-    { date: 'Tue', deposits: 7, withdrawals: 3, trades: 15 },
-    { date: 'Wed', deposits: 4, withdrawals: 1, trades: 10 },
-    { date: 'Thu', deposits: 8, withdrawals: 4, trades: 18 },
-    { date: 'Fri', deposits: 10, withdrawals: 5, trades: 20 },
-    { date: 'Sat', deposits: 12, withdrawals: 7, trades: 25 },
-    { date: 'Sun', deposits: 9, withdrawals: 6, trades: 22 },
-  ]
+  depositRequests: [
+    { time: '28/06/2025 21:31:58', user: 'nguoikhongten22@gmail.com', amount: 3000000, bank: 'Xem', status: 'Chờ duyệt', action: '' },
+    { time: '28/06/2025 19:21:08', user: 'ThuThao85', amount: 3000000, bank: 'Xem', status: 'Đã duyệt', action: '' },
+    { time: '28/06/2025 19:09:03', user: 'phamhongocchinh16814@gmail.com', amount: 3000000, bank: 'Xem', status: 'Chờ duyệt', action: '' },
+  ],
+  withdrawalRequests: [
+    { time: '28/06/2025 23:00:32', user: 'Dinh Thi Tu Anh', amount: 5000000, deducted: 4750000, bank: 'Vietinbank', account: '10487691067', fullName: 'DINH THI TU ANH', status: 'Chờ duyệt', action: '' },
+    { time: '28/06/2025 23:00:04', user: 'Dinh Thi Tu Anh', amount: 5000000, deducted: 4750000, bank: 'Vietinbank', account: '10487691067', fullName: 'DINH THI TU ANH', status: 'Chờ duyệt', action: '' },
+  ],
+  accountSummary: {
+    totalAccounts: 131,
+    totalBalance: 10498420000,
+    totalDeposits: 6980829240,
+    totalWithdrawals: 5600000,
+  },
+  trades: [
+    { time: '28/06/2025 10:19:00', user: 'user1@example.com', amount: 5000000, type: 'deposit', status: 'completed' },
+    { time: '28/06/2025 10:18:00', user: 'user2@example.com', amount: 3000000, type: 'withdraw', status: 'pending' },
+  ],
 };
 
 interface DashboardProps {
-  stats: {
-    totalUsers: number;
-    activeUsers: number;
-    totalDeposits: number;
-    totalWithdrawals: number;
-    totalTrades: number;
-    profit: number;
-    recentTrades: any[];
-    dailyStats: Array<{
-      date: string;
-      deposits: number;
-      withdrawals: number;
-      trades: number;
+  data: {
+    customers: Array<{
+      id: string;
+      balance: number;
+      ipLogin: string;
+      status: string;
+    }>;
+    depositRequests: Array<{
+      time: string;
+      user: string;
+      amount: number;
+      bank: string;
+      status: string;
+      action: string;
+    }>;
+    withdrawalRequests: Array<{
+      time: string;
+      user: string;
+      amount: number;
+      deducted: number;
+      bank: string;
+      account: string;
+      fullName: string;
+      status: string;
+      action: string;
+    }>;
+    accountSummary: {
+      totalAccounts: number;
+      totalBalance: number;
+      totalDeposits: number;
+      totalWithdrawals: number;
+    };
+    trades: Array<{
+      time: string;
+      user: string;
+      amount: number;
+      type: string;
+      status: string;
     }>;
   };
 }
 
-export default function Dashboard({ stats }: DashboardProps) {
-  return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
-      
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              className="h-4 w-4 text-muted-foreground"
-            >
-              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-            </svg>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalUsers}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats.activeUsers} active users
-            </p>
-          </CardContent>
-        </Card>
+const menuItems = [
+  { id: 'dashboard', label: 'Tổng quan', icon: <LayoutDashboard size={20} /> },
+  { id: 'users', label: 'Khách hàng', icon: <Users size={20} /> },
+  { id: 'trades', label: 'Lịch sử đặt lệnh', icon: <Clock size={20} /> },
+  { id: 'deposits', label: 'Yêu cầu nạp tiền', icon: <DollarSign size={20} /> },
+  { id: 'withdrawals', label: 'Yêu cầu rút tiền', icon: <Wallet size={20} /> },
+  { id: 'settings', label: 'Cài đặt', icon: <Settings size={20} /> },
+];
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Deposits</CardTitle>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              className="h-4 w-4 text-muted-foreground"
-            >
-              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-            </svg>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">${stats.totalDeposits.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
-              ${stats.totalWithdrawals.toLocaleString()} in withdrawals
-            </p>
-          </CardContent>
-        </Card>
+export default function Dashboard({ data }: DashboardProps) {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [activeItem, setActiveItem] = useState('dashboard');
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Trades</CardTitle>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              className="h-4 w-4 text-muted-foreground"
-            >
-              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-            </svg>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalTrades}</div>
-            <p className="text-xs text-muted-foreground">
-              ${stats.profit.toLocaleString()} profit
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+  const handleNavigation = (itemId: string) => setActiveItem(itemId);
 
-      <div className="grid gap-4 md:grid-cols-2 mb-8">
-        <Card className="col-span-2">
-          <CardHeader>
-            <CardTitle>Daily Activity</CardTitle>
-          </CardHeader>
-          <CardContent className="pl-2">
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={stats.dailyStats}
-                  margin={{
-                    top: 5,
-                    right: 30,
-                    left: 20,
-                    bottom: 5,
-                  }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="deposits" fill="#8884d8" name="Deposits" />
-                  <Bar dataKey="withdrawals" fill="#82ca9d" name="Withdrawals" />
-                  <Bar dataKey="trades" fill="#ffc658" name="Trades" />
-                </BarChart>
-              </ResponsiveContainer>
+  const renderContent = () => {
+    switch (activeItem) {
+      case 'dashboard':
+        return (
+          <div className="mb-6 p-4 bg-white rounded-lg shadow">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Tổng quan</h2>
             </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Trades</CardTitle>
-          </CardHeader>
-          <CardContent>
+            <div className="grid grid-cols-4 gap-4 text-center">
+              <div>Tài khoản mới</div>
+              <div>Tổng tiền cố định</div>
+              <div>Tổng tiền rút</div>
+              <div>Tổng nạp</div>
+            </div>
+            <div className="grid grid-cols-4 gap-4 text-center mt-2">
+              <div>{data.accountSummary.totalAccounts}</div>
+              <div>{data.accountSummary.totalBalance.toLocaleString()} đ</div>
+              <div>{data.accountSummary.totalWithdrawals.toLocaleString()} đ</div>
+              <div>{data.accountSummary.totalDeposits.toLocaleString()} đ</div>
+            </div>
+          </div>
+        );
+      case 'users':
+        return (
+          <div className="mb-6 p-4 bg-white rounded-lg shadow">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Tài khoản mới</h2>
+              <div className="flex space-x-2">
+                <select className="border rounded p-1">
+                  <option>Trạng thái</option>
+                  <option>Tất cả</option>
+                </select>
+                <input type="date" className="border rounded p-1" defaultValue="01/06/2025" />
+                <input type="date" className="border rounded p-1" defaultValue="29/06/2025" />
+                <button className="bg-green-500 text-white px-2 py-1 rounded">Áp dụng</button>
+              </div>
+            </div>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      User
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Symbol
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Direction
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Amount
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Time
-                    </th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tên đăng nhập</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Số dư</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">IP login</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Trạng thái</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {stats.recentTrades.map((trade) => (
-                    <tr key={trade.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {trade.user?.email || 'N/A'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {trade.symbol}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          trade.direction === 'UP' 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                          {trade.direction}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        ${trade.amount}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          trade.status === 'WON' 
-                            ? 'bg-green-100 text-green-800' 
-                            : trade.status === 'LOST' 
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {trade.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {format(new Date(trade.openTime), 'PPpp')}
+                  {data.customers.map((customer, index) => (
+                    <tr key={index}>
+                      <td className="px-4 py-2 text-sm text-gray-900">{customer.id}</td>
+                      <td className="px-4 py-2 text-sm text-gray-900">{customer.balance.toLocaleString()} đ</td>
+                      <td className="px-4 py-2 text-sm text-gray-900">{customer.ipLogin}</td>
+                      <td className="px-4 py-2 text-sm text-gray-900">{customer.status}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      case 'trades':
+        return (
+          <div className="mb-6 p-4 bg-white rounded-lg shadow">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Lịch sử đặt lệnh</h2>
+              <div className="flex space-x-2">
+                <input type="date" className="border rounded p-1" defaultValue="01/06/2025" />
+                <input type="date" className="border rounded p-1" defaultValue="29/06/2025" />
+                <button className="bg-green-500 text-white px-2 py-1 rounded">Áp dụng</button>
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Thời gian</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Khách hàng</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Số tiền</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Loại</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Trạng thái</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {data.trades.map((trade, index) => (
+                    <tr key={index}>
+                      <td className="px-4 py-2 text-sm text-gray-900">{trade.time}</td>
+                      <td className="px-4 py-2 text-sm text-gray-900">{trade.user}</td>
+                      <td className="px-4 py-2 text-sm text-gray-900">{trade.amount.toLocaleString()} đ</td>
+                      <td className="px-4 py-2 text-sm text-gray-900">{trade.type}</td>
+                      <td className="px-4 py-2 text-sm text-gray-900">{trade.status}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      case 'deposits':
+        return (
+          <div className="mb-6 p-4 bg-white rounded-lg shadow">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Yêu cầu nạp tiền</h2>
+              <div className="flex space-x-2">
+                <input type="date" className="border rounded p-1" defaultValue="01/06/2025" />
+                <input type="date" className="border rounded p-1" defaultValue="29/06/2025" />
+                <button className="bg-green-500 text-white px-2 py-1 rounded">Áp dụng</button>
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Thời gian</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Khách hàng</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Số tiền</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Bill</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Trạng thái</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Hành động</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {data.depositRequests.map((request, index) => (
+                    <tr key={index}>
+                      <td className="px-4 py-2 text-sm text-gray-900">{request.time}</td>
+                      <td className="px-4 py-2 text-sm text-gray-900">{request.user}</td>
+                      <td className="px-4 py-2 text-sm text-gray-900">{request.amount.toLocaleString()} đ</td>
+                      <td className="px-4 py-2 text-sm text-gray-900">{request.bank}</td>
+                      <td className="px-4 py-2 text-sm text-gray-900">{request.status}</td>
+                      <td className="px-4 py-2 text-sm text-gray-900">
+                        <Button variant="outline" size="sm">Phê duyệt</Button>
+                        <Button variant="outline" size="sm" className="ml-2">Tư chối</Button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        );
+      case 'withdrawals':
+        return (
+          <div className="mb-6 p-4 bg-white rounded-lg shadow">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Yêu cầu rút tiền</h2>
+              <div className="flex space-x-2">
+                <input type="date" className="border rounded p-1" defaultValue="01/06/2025" />
+                <input type="date" className="border rounded p-1" defaultValue="29/06/2025" />
+                <button className="bg-green-500 text-white px-2 py-1 rounded">Áp dụng</button>
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Thời gian</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Khách hàng</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Số tiền</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Số tiền rút thực tế</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Ngân hàng nhận tiền</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Số tài khoản</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Chủ tài khoản</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Trạng thái</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {data.withdrawalRequests.map((request, index) => (
+                    <tr key={index}>
+                      <td className="px-4 py-2 text-sm text-gray-900">{request.time}</td>
+                      <td className="px-4 py-2 text-sm text-gray-900">{request.user}</td>
+                      <td className="px-4 py-2 text-sm text-gray-900">{request.amount.toLocaleString()} đ</td>
+                      <td className="px-4 py-2 text-sm text-gray-900">{request.deducted.toLocaleString()} đ</td>
+                      <td className="px-4 py-2 text-sm text-gray-900">{request.bank}</td>
+                      <td className="px-4 py-2 text-sm text-gray-900">{request.account}</td>
+                      <td className="px-4 py-2 text-sm text-gray-900">{request.fullName}</td>
+                      <td className="px-4 py-2 text-sm text-gray-900">{request.status}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      case 'settings':
+        return <div className="p-4">Cài đặt nội dung ở đây</div>;
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="flex h-screen bg-gray-50">
+      {/* Sidebar */}
+      <div className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-white border-r border-gray-200 flex flex-col transition-all duration-300`}>
+        <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+          {sidebarOpen ? (
+            <h1 className="text-xl font-bold text-gray-800">Admin Panel</h1>
+          ) : (
+            <div className="w-8 h-8 bg-blue-600 rounded-md flex items-center justify-center text-white">
+              <span className="text-sm font-bold">AP</span>
+            </div>
+          )}
+          <button onClick={toggleSidebar} className="p-1 rounded-md hover:bg-gray-100">
+            {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
+        <nav className="flex-1 overflow-y-auto p-2">
+          <ul className="space-y-1">
+            {menuItems.map((item) => (
+              <li key={item.id}>
+                <button
+                  onClick={() => handleNavigation(item.id)}
+                  className={`w-full flex items-center p-3 rounded-md text-sm font-medium ${
+                    activeItem === item.id ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <span className="flex-shrink-0">{item.icon}</span>
+                  {sidebarOpen && <span className="ml-3">{item.label}</span>}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 overflow-y-auto">
+        <header className="bg-white shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center">
+              <h1 className="text-2xl font-semibold text-gray-900">
+                {menuItems.find((item) => item.id === activeItem)?.label || 'Dashboard'}
+              </h1>
+              <div className="flex items-center space-x-4">
+                <button className="p-2 rounded-full hover:bg-gray-100">
+                  <span className="sr-only">Notifications</span>
+                  <div className="h-6 w-6 bg-gray-200 rounded-full"></div>
+                </button>
+                <div className="flex items-center">
+                  <div className="h-8 w-8 rounded-full bg-gray-200"></div>
+                  {sidebarOpen && <span className="ml-2 text-sm font-medium text-gray-700">Admin</span>}
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main className="max-w-7xl mx-auto px-6 py-6 sm:px-6 lg:px-8">
+          {renderContent()}
+        </main>
       </div>
     </div>
   );
 }
 
-// Using static props for admin dashboard with mock data
 export const getServerSideProps: GetServerSideProps = async () => {
   return {
     props: {
-      stats: mockStats
+      data: mockData,
     },
   };
 };
