@@ -338,10 +338,10 @@ export default function Dashboard({ data }: DashboardProps) {
       case 'settings':
         return (
           <div className="p-4 bg-white rounded-lg shadow">
-            <div className="max-w-md mx-auto">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">Thông tin ngân hàng nạp tiền</h2>
-              <div className="space-y-6">
-                <div>
+            <div className="max-w-md mx-auto space-y-6">
+              <h2 className="text-xl font-semibold text-gray-900">Thông tin Ngân hàng nạp tiền</h2>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="col-span-1">
                   <label className="block text-sm font-medium text-gray-700">Tên ngân hàng</label>
                   <input
                     type="text"
@@ -349,7 +349,7 @@ export default function Dashboard({ data }: DashboardProps) {
                     className="mt-2 block w-full border border-gray-300 rounded-md p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
-                <div>
+                <div className="col-span-1">
                   <label className="block text-sm font-medium text-gray-700">Số tài khoản</label>
                   <input
                     type="text"
@@ -357,7 +357,7 @@ export default function Dashboard({ data }: DashboardProps) {
                     className="mt-2 block w-full border border-gray-300 rounded-md p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
-                <div>
+                <div className="col-span-1">
                   <label className="block text-sm font-medium text-gray-700">Chủ tài khoản</label>
                   <input
                     type="text"
@@ -365,6 +365,9 @@ export default function Dashboard({ data }: DashboardProps) {
                     className="mt-2 block w-full border border-gray-300 rounded-md p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
+              </div>
+              <h2 className="text-xl font-semibold text-gray-900">CẤU HÌNH NẠP RÚT</h2>
+              <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Số tiền nạp tối thiểu</label>
                   <input
