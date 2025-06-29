@@ -339,14 +339,14 @@ export default function Dashboard({ data }: DashboardProps) {
         return (
           <div className="p-4 bg-white rounded-lg shadow">
             <div className="max-w-md mx-auto">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Thông tin ngân hàng nạp tiền</h2>
-              <div className="space-y-4">
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">Thông tin ngân hàng nạp tiền</h2>
+              <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Tên ngân hàng</label>
                   <input
                     type="text"
                     defaultValue="ABBANK"
-                    className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-2 block w-full border border-gray-300 rounded-md p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
                 <div>
@@ -354,7 +354,7 @@ export default function Dashboard({ data }: DashboardProps) {
                   <input
                     type="text"
                     defaultValue="0387473721"
-                    className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-2 block w-full border border-gray-300 rounded-md p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
                 <div>
@@ -362,7 +362,7 @@ export default function Dashboard({ data }: DashboardProps) {
                   <input
                     type="text"
                     defaultValue="VU VAN MIEN"
-                    className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-2 block w-full border border-gray-300 rounded-md p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
                 <div>
@@ -370,7 +370,7 @@ export default function Dashboard({ data }: DashboardProps) {
                   <input
                     type="text"
                     defaultValue="100.000"
-                    className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-2 block w-full border border-gray-300 rounded-md p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
                 <div>
@@ -378,7 +378,7 @@ export default function Dashboard({ data }: DashboardProps) {
                   <input
                     type="text"
                     defaultValue="100.000"
-                    className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-2 block w-full border border-gray-300 rounded-md p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
                 <div>
@@ -386,13 +386,13 @@ export default function Dashboard({ data }: DashboardProps) {
                   <input
                     type="text"
                     defaultValue="https://t.me/DICHVUCSKHSE"
-                    className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-2 block w-full border border-gray-300 rounded-md p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
+                <Button className="mt-6 w-full bg-blue-600 text-white py-2.5 rounded-md hover:bg-blue-700 text-sm">
+                  Lưu
+                </Button>
               </div>
-              <Button className="mt-6 w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700">
-                Lưu
-              </Button>
             </div>
           </div>
         );
