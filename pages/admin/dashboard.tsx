@@ -11,28 +11,80 @@ import {
   Settings,
   X,
   Menu,
+  Trash2,
+  Pencil,
+  Check,
+  ChevronDown,
+  Search,
+  Filter,
+  MoreVertical
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Switch } from '@/components/ui/switch';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 // Mock data for admin dashboard
 const mockData = {
   customers: [
-    { id: 'NguyenTran123', balance: 0, ipLogin: '171.251.237.143, 172.7124.65', status: 'Trạng thái' },
-    { id: 'vuthanhtra', balance: 420000, ipLogin: '171.224.178.192, 104.2317.39', status: 'Trạng thái' },
-    { id: 'NguyenThiTuyet', balance: 0, ipLogin: '2a09:bacd:4592:63c:30, 172.68.2116', status: 'Trạng thái' },
-    { id: 'MaThiThanh', balance: 0, ipLogin: '171.254.200.151, 172.68.164.127', status: 'Trạng thái' },
+    { 
+      id: 'Nguyemtrang123', 
+      balance: 0, 
+      frozenBalance: 0,
+      ipLogin: '171.251.237.143, 172.71.124.65',
+      status: 'Hoạt động',
+      verified: true,
+      betLocked: false,
+      withdrawLocked: false
+    },
+    { 
+      id: 'vuituanhtra', 
+      balance: 420000, 
+      frozenBalance: 600000,
+      ipLogin: '171.224.178.182, 104.23.175.38',
+      status: 'Hoạt động',
+      verified: true,
+      betLocked: false,
+      withdrawLocked: false
+    },
+    { 
+      id: 'Nguyễn Thị Tuyết', 
+      balance: 0, 
+      frozenBalance: 0,
+      ipLogin: '2a03:bac5:0445:9.263c:c3ef:30, 172.68.211.6',
+      status: 'Hoạt động',
+      verified: true,
+      betLocked: false,
+      withdrawLocked: false
+    },
+    { 
+      id: 'Ma thi Thanh', 
+      balance: 0, 
+      frozenBalance: 0,
+      ipLogin: '171.254.200.151, 172.68.164.127',
+      status: 'Hoạt động',
+      verified: true,
+      betLocked: false,
+      withdrawLocked: false
+    },
   ],
   depositRequests: [
-    { time: '28/06/2025 21:31:58', user: 'nguoikhongten22@gmail.com', amount: 3000000, bank: 'Xem', status: 'Chờ duyệt', action: '' },
-    { time: '28/06/2025 19:21:08', user: 'ThuThao85', amount: 3000000, bank: 'Xem', status: 'Đã duyệt', action: '' },
-    { time: '28/06/2025 19:09:03', user: 'phamhongocchinh16814@gmail.com', amount: 3000000, bank: 'Xem', status: 'Chờ duyệt', action: '' },
-    { time: '28/06/2025 19:04:49', user: 'phamhongocchinh16814@gmail.com', amount: 3000000, bank: 'Xem', status: 'Chờ duyệt', action: '' },
-    { time: '28/06/2025 17:36:15', user: '', amount: 3000000, bank: 'Xem', status: 'Đã duyệt', action: '' },
+    { id: '1', time: '28/06/2025 21:31:58', user: 'nguoikhongten22@gmail.com', amount: 3000000, bank: 'Vietcombank', status: 'Chờ duyệt' },
+    { id: '2', time: '28/06/2025 19:21:08', user: 'ThuThao85', amount: 3000000, bank: 'Techcombank', status: 'Đã duyệt' },
+    { id: '3', time: '28/06/2025 19:09:03', user: 'phamhongocchinh16814@gmail.com', amount: 3000000, bank: 'MB Bank', status: 'Chờ duyệt' },
   ],
   withdrawalRequests: [
-    { time: '28/06/2025 23:00:32', user: 'Dinh Thi Tu Anh', amount: 5000000, deducted: 4750000, bank: 'Vietinbank', account: '10487691067', fullName: 'DINH THI TU ANH', status: 'Chờ duyệt', action: '' },
-    { time: '28/06/2025 23:00:04', user: 'Dinh Thi Tu Anh', amount: 5000000, deducted: 4750000, bank: 'Vietinbank', account: '10487691067', fullName: 'DINH THI TU ANH', status: 'Chờ duyệt', action: '' },
+    { id: '1', time: '28/06/2025 23:00:32', user: 'Dinh Thi Tu Anh', amount: 5000000, deducted: 4750000, bank: 'Vietinbank', account: '10487691067', fullName: 'DINH THI TU ANH', status: 'Chờ duyệt' },
+    { id: '2', time: '28/06/2025 23:00:04', user: 'Dinh Thi Tu Anh', amount: 5000000, deducted: 4750000, bank: 'Vietinbank', account: '10487691067', fullName: 'DINH THI TU ANH', status: 'Chờ duyệt' },
   ],
   accountSummary: {
     totalAccounts: 131,
@@ -41,52 +93,13 @@ const mockData = {
     totalWithdrawals: 5600000,
   },
   trades: [
-    { time: '28/06/2025 10:19:00', user: 'user1@example.com', amount: 5000000, type: 'deposit', status: 'completed' },
-    { time: '28/06/2025 10:18:00', user: 'user2@example.com', amount: 3000000, type: 'withdraw', status: 'pending' },
+    { id: '1', time: '28/06/2025 10:19:00', user: 'user1@example.com', amount: 5000000, type: 'deposit', status: 'completed' },
+    { id: '2', time: '28/06/2025 10:18:00', user: 'user2@example.com', amount: 3000000, type: 'withdraw', status: 'pending' },
   ],
 };
 
 interface DashboardProps {
-  data: {
-    customers: Array<{
-      id: string;
-      balance: number;
-      ipLogin: string;
-      status: string;
-    }>;
-    depositRequests: Array<{
-      time: string;
-      user: string;
-      amount: number;
-      bank: string;
-      status: string;
-      action: string;
-    }>;
-    withdrawalRequests: Array<{
-      time: string;
-      user: string;
-      amount: number;
-      deducted: number;
-      bank: string;
-      account: string;
-      fullName: string;
-      status: string;
-      action: string;
-    }>;
-    accountSummary: {
-      totalAccounts: number;
-      totalBalance: number;
-      totalDeposits: number;
-      totalWithdrawals: number;
-    };
-    trades: Array<{
-      time: string;
-      user: string;
-      amount: number;
-      type: string;
-      status: string;
-    }>;
-  };
+  data: typeof mockData;
 }
 
 const menuItems = [
@@ -98,315 +111,661 @@ const menuItems = [
   { id: 'settings', label: 'Cài đặt', icon: <Settings size={20} /> },
 ];
 
-export default function Dashboard({ data }: DashboardProps) {
+export default function Dashboard({ data: initialData }: DashboardProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeItem, setActiveItem] = useState('dashboard');
-  const [startDate, setStartDate] = useState('01/06/2025');
-  const [endDate, setEndDate] = useState('29/06/2025');
+  const [data, setData] = useState(initialData);
+  const [dateRange, setDateRange] = useState({ start: '01/06/2025', end: '29/06/2025' });
   const [statusFilter, setStatusFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const handleNavigation = (itemId: string) => setActiveItem(itemId);
+
+  // Customer actions
+  const toggleCustomerStatus = (id: string) => {
+    setData(prev => ({
+      ...prev,
+      customers: prev.customers.map(customer => 
+        customer.id === id 
+          ? { ...customer, status: customer.status === 'Hoạt động' ? 'Offline' : 'Hoạt động' } 
+          : customer
+      )
+    }));
+  };
+
+  const toggleVerification = (id: string) => {
+    setData(prev => ({
+      ...prev,
+      customers: prev.customers.map(customer => 
+        customer.id === id 
+          ? { ...customer, verified: !customer.verified } 
+          : customer
+      )
+    }));
+  };
+
+  const toggleBetLock = (id: string) => {
+    setData(prev => ({
+      ...prev,
+      customers: prev.customers.map(customer => 
+        customer.id === id 
+          ? { ...customer, betLocked: !customer.betLocked } 
+          : customer
+      )
+    }));
+  };
+
+  const toggleWithdrawLock = (id: string) => {
+    setData(prev => ({
+      ...prev,
+      customers: prev.customers.map(customer => 
+        customer.id === id 
+          ? { ...customer, withdrawLocked: !customer.withdrawLocked } 
+          : customer
+      )
+    }));
+  };
+
+  const handleEditCustomer = (id: string) => {
+    console.log('Edit customer:', id);
+  };
+
+  const handleDeleteCustomer = (id: string) => {
+    setData(prev => ({
+      ...prev,
+      customers: prev.customers.filter(customer => customer.id !== id)
+    }));
+  };
+
+  // Deposit actions
+  const approveDeposit = (id: string) => {
+    setData(prev => ({
+      ...prev,
+      depositRequests: prev.depositRequests.map(request => 
+        request.id === id 
+          ? { ...request, status: 'Đã duyệt' } 
+          : request
+      )
+    }));
+  };
+
+  const rejectDeposit = (id: string) => {
+    setData(prev => ({
+      ...prev,
+      depositRequests: prev.depositRequests.filter(request => request.id !== id)
+    }));
+  };
+
+  // Withdrawal actions
+  const approveWithdrawal = (id: string) => {
+    setData(prev => ({
+      ...prev,
+      withdrawalRequests: prev.withdrawalRequests.map(request => 
+        request.id === id 
+          ? { ...request, status: 'Đã duyệt' } 
+          : request
+      )
+    }));
+  };
+
+  const rejectWithdrawal = (id: string) => {
+    setData(prev => ({
+      ...prev,
+      withdrawalRequests: prev.withdrawalRequests.filter(request => request.id !== id)
+    }));
+  };
 
   const renderContent = () => {
     switch (activeItem) {
       case 'dashboard':
         return (
-          <div className="mb-6 p-4 bg-white rounded-lg shadow">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Tổng quan</h2>
-            </div>
-            <div className="grid grid-cols-4 gap-4 text-center">
-              <div>Tài khoản mới</div>
-              <div>Tổng tiền cố định</div>
-              <div>Tổng tiền rút</div>
-              <div>Tổng nạp</div>
-            </div>
-            <div className="grid grid-cols-4 gap-4 text-center mt-2">
-              <div>{data.accountSummary.totalAccounts}</div>
-              <div>{data.accountSummary.totalBalance.toLocaleString()} đ</div>
-              <div>{data.accountSummary.totalWithdrawals.toLocaleString()} đ</div>
-              <div>{data.accountSummary.totalDeposits.toLocaleString()} đ</div>
+          <div className="mb-6 p-6 bg-white rounded-lg shadow">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">Tài khoản</CardTitle>
+                  <Users className="h-4 w-4 text-gray-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{data.accountSummary.totalAccounts}</div>
+                  <p className="text-xs text-gray-500">Tổng số tài khoản</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">Tổng tiền</CardTitle>
+                  <Wallet className="h-4 w-4 text-gray-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{data.accountSummary.totalBalance.toLocaleString()} đ</div>
+                  <p className="text-xs text-gray-500">Tổng số dư</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">Tổng nạp</CardTitle>
+                  <DollarSign className="h-4 w-4 text-gray-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{data.accountSummary.totalDeposits.toLocaleString()} đ</div>
+                  <p className="text-xs text-gray-500">Tổng tiền nạp</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium">Tổng rút</CardTitle>
+                  <Wallet className="h-4 w-4 text-gray-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{data.accountSummary.totalWithdrawals.toLocaleString()} đ</div>
+                  <p className="text-xs text-gray-500">Tổng tiền rút</p>
+                </CardContent>
+              </Card>
             </div>
           </div>
         );
+
       case 'users':
         return (
-          <div className="mb-6 p-4 bg-white rounded-lg shadow">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Tài khoản mới</h2>
-              <div className="flex space-x-2">
-                <select className="border rounded p-1">
-                  <option>Trạng thái</option>
-                  <option>Tất cả</option>
-                </select>
-                <input type="date" className="border rounded p-1" defaultValue="01/06/2025" />
-                <input type="date" className="border rounded p-1" defaultValue="29/06/2025" />
-                <button className="bg-green-500 text-white px-2 py-1 rounded">Áp dụng</button>
-              </div>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tên đăng nhập</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Số dư</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">IP login</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Trạng thái</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {data.customers.map((customer, index) => (
-                    <tr key={index}>
-                      <td className="px-4 py-2 text-sm text-gray-900">{customer.id}</td>
-                      <td className="px-4 py-2 text-sm text-gray-900">{customer.balance.toLocaleString()} đ</td>
-                      <td className="px-4 py-2 text-sm text-gray-900">{customer.ipLogin}</td>
-                      <td className="px-4 py-2 text-sm text-gray-900">{customer.status}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        );
-      case 'trades':
-        return (
-          <div className="mb-6 p-4 bg-white rounded-lg shadow">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Lịch sử đặt lệnh</h2>
-              <div className="flex space-x-2">
-                <input type="date" className="border rounded p-1" defaultValue="01/06/2025" />
-                <input type="date" className="border rounded p-1" defaultValue="29/06/2025" />
-                <button className="bg-green-500 text-white px-2 py-1 rounded">Áp dụng</button>
-              </div>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Thời gian</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Khách hàng</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Số tiền</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Loại</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Trạng thái</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {data.trades.map((trade, index) => (
-                    <tr key={index}>
-                      <td className="px-4 py-2 text-sm text-gray-900">{trade.time}</td>
-                      <td className="px-4 py-2 text-sm text-gray-900">{trade.user}</td>
-                      <td className="px-4 py-2 text-sm text-gray-900">{trade.amount.toLocaleString()} đ</td>
-                      <td className="px-4 py-2 text-sm text-gray-900">{trade.type}</td>
-                      <td className="px-4 py-2 text-sm text-gray-900">{trade.status}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        );
-      case 'deposits':
-        return (
-          <div className="mb-6 p-4 bg-white rounded-lg shadow">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Yêu cầu nạp tiền</h2>
-              <div className="flex space-x-2">
-                <input
-                  type="text"
-                  placeholder="Khách hàng"
-                  className="border rounded p-1"
-                />
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="border rounded p-1"
-                >
-                  <option value="all">Trạng thái</option>
-                  <option value="Chờ duyệt">Chờ duyệt</option>
-                  <option value="Đã duyệt">Đã duyệt</option>
-                </select>
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="border rounded p-1"
-                />
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="border rounded p-1"
-                />
-                <button className="bg-green-500 text-white px-2 py-1 rounded">Áp dụng</button>
-              </div>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Thời gian</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Khách hàng</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Số tiền</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Bill</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Trạng thái</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {data.depositRequests.map((request, index) => (
-                    <tr key={index}>
-                      <td className="px-4 py-2 text-sm text-gray-900">{request.time}</td>
-                      <td className="px-4 py-2 text-sm text-gray-900">{request.user}</td>
-                      <td className="px-4 py-2 text-sm text-gray-900">{request.amount.toLocaleString()} đ</td>
-                      <td className="px-4 py-2 text-sm text-gray-900">{request.bank}</td>
-                      <td className="px-4 py-2 text-sm">
-                        {request.status === 'Chờ duyệt' ? (
-                          <span className="text-yellow-500">Chờ duyệt</span>
-                        ) : (
-                          <span className="text-green-500">Đã duyệt</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-2 text-sm text-gray-900">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="bg-green-500 text-white border-green-500 hover:bg-green-600 mr-2"
-                          disabled={request.status === 'Đã duyệt'}
-                        >
-                          Phê duyệt
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="bg-red-500 text-white border-red-500 hover:bg-red-600"
-                          disabled={request.status === 'Đã duyệt'}
-                        >
-                          Tư chối
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        );
-      case 'withdrawals':
-        return (
-          <div className="mb-6 p-4 bg-white rounded-lg shadow">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Yêu cầu rút tiền</h2>
-              <div className="flex space-x-2">
-                <input type="date" className="border rounded p-1" defaultValue="01/06/2025" />
-                <input type="date" className="border rounded p-1" defaultValue="29/06/2025" />
-                <button className="bg-green-500 text-white px-2 py-1 rounded">Áp dụng</button>
-              </div>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Thời gian</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Khách hàng</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Số tiền</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Số tiền rút thực tế</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Ngân hàng nhận tiền</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Số tài khoản</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Chủ tài khoản</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Trạng thái</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {data.withdrawalRequests.map((request, index) => (
-                    <tr key={index}>
-                      <td className="px-4 py-2 text-sm text-gray-900">{request.time}</td>
-                      <td className="px-4 py-2 text-sm text-gray-900">{request.user}</td>
-                      <td className="px-4 py-2 text-sm text-gray-900">{request.amount.toLocaleString()} đ</td>
-                      <td className="px-4 py-2 text-sm text-gray-900">{request.deducted.toLocaleString()} đ</td>
-                      <td className="px-4 py-2 text-sm text-gray-900">{request.bank}</td>
-                      <td className="px-4 py-2 text-sm text-gray-900">{request.account}</td>
-                      <td className="px-4 py-2 text-sm text-gray-900">{request.fullName}</td>
-                      <td className="px-4 py-2 text-sm text-gray-900">{request.status}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        );
-      case 'settings':
-        return (
-          <div className="p-4 bg-white rounded-lg shadow">
-            <div className="max-w-md mx-auto space-y-6">
-              <h2 className="text-xl font-semibold text-gray-900">Thông tin Ngân hàng nạp tiền</h2>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="col-span-1">
-                  <label className="block text-sm font-medium text-gray-700">Tên ngân hàng</label>
-                  <input
-                    type="text"
-                    defaultValue="ABBANK"
-                    className="mt-2 block w-full border border-gray-300 rounded-md p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
+          <div className="mb-6 p-6 bg-white rounded-lg shadow">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+              <h2 className="text-xl font-semibold">Danh sách khách hàng</h2>
+              <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                <div className="relative w-full">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Tìm kiếm..."
+                    className="pl-9 w-full"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
-                <div className="col-span-1">
-                  <label className="block text-sm font-medium text-gray-700">Số tài khoản</label>
-                  <input
-                    type="text"
-                    defaultValue="0387473721"
-                    className="mt-2 block w-full border border-gray-300 rounded-md p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-                <div className="col-span-1">
-                  <label className="block text-sm font-medium text-gray-700">Chủ tài khoản</label>
-                  <input
-                    type="text"
-                    defaultValue="VU VAN MIEN"
-                    className="mt-2 block w-full border border-gray-300 rounded-md p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-              </div>
-              <h2 className="text-xl font-semibold text-gray-900">CẤU HÌNH NẠP RÚT</h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Số tiền nạp tối thiểu</label>
-                  <input
-                    type="text"
-                    defaultValue="100.000"
-                    className="mt-2 block w-full border border-gray-300 rounded-md p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Số tiền rút tối thiểu</label>
-                  <input
-                    type="text"
-                    defaultValue="100.000"
-                    className="mt-2 block w-full border border-gray-300 rounded-md p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Số tiền đặt lệnh tối thiểu</label>
-                  <input
-                    type="text"
-                    defaultValue="100.000"
-                    className="mt-2 block w-full border border-gray-300 rounded-md p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Link CSKH</label>
-                  <input
-                    type="text"
-                    defaultValue="https://t.me/DICHVUCSKHSE"
-                    className="mt-2 block w-full border border-gray-300 rounded-md p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-                <Button className="mt-6 w-full bg-blue-600 text-white py-2.5 rounded-md hover:bg-blue-700 text-sm">
-                  Lưu
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-full md:w-[180px]">
+                    <SelectValue placeholder="Trạng thái" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tất cả</SelectItem>
+                    <SelectItem value="active">Hoạt động</SelectItem>
+                    <SelectItem value="inactive">Không hoạt động</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button className="gap-1">
+                  <Filter className="h-4 w-4" />
+                  <span>Lọc</span>
                 </Button>
               </div>
             </div>
+            <div className="rounded-md border">
+              <div className="relative w-full overflow-auto">
+                <table className="w-full caption-bottom text-sm">
+                  <thead className="[&_tr]:border-b">
+                    <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                      <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">Tên đăng nhập</th>
+                      <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">Số dư</th>
+                      <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">IP login</th>
+                      <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">Thông tin xác minh</th>
+                      <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">Trạng thái</th>
+                      <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">Hành động</th>
+                    </tr>
+                  </thead>
+                  <tbody className="[&_tr:last-child]:border-0">
+                    {data.customers.map((customer) => (
+                      <tr key={customer.id} className="border-b transition-colors hover:bg-muted/50">
+                        <td className="p-4 align-middle font-medium">{customer.id}</td>
+                        <td className="p-4 align-middle">
+                          <div className="flex flex-col">
+                            <span>Số dư: {customer.balance.toLocaleString()} đ</span>
+                            <span className="text-sm text-gray-500">Đóng băng: {customer.frozenBalance.toLocaleString()} đ</span>
+                          </div>
+                        </td>
+                        <td className="p-4 align-middle">{customer.ipLogin}</td>
+                        <td className="p-4 align-middle">
+                          <div className="flex flex-col gap-1">
+                            <span className="text-sm">Họ tên: -</span>
+                            <span className="text-sm">CCCD mặt trước: -</span>
+                            <span className="text-sm">CCCD mặt sau: -</span>
+                          </div>
+                        </td>
+                        <td className="p-4 align-middle">
+                          <div className="flex flex-col gap-3">
+                            <div className="flex items-center gap-3">
+                              <span className="w-24 text-sm text-gray-600">Hoạt động:</span>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <Switch
+                                    checked={customer.status === 'Hoạt động'}
+                                    onCheckedChange={() => toggleCustomerStatus(customer.id)}
+                                    className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-gray-300"
+                                  />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  {customer.status === 'Hoạt động' ? 'Tắt trạng thái' : 'Bật trạng thái'}
+                                </TooltipContent>
+                              </Tooltip>
+                              <Badge variant={customer.status === 'Hoạt động' ? 'success' : 'secondary'}>
+                                {customer.status}
+                              </Badge>
+                            </div>
+                            
+                            <div className="flex items-center gap-3">
+                              <span className="w-24 text-sm text-gray-600">Xác minh:</span>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <Switch
+                                    checked={customer.verified}
+                                    onCheckedChange={() => toggleVerification(customer.id)}
+                                    className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-gray-300"
+                                  />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  {customer.verified ? 'Hủy xác minh' : 'Xác minh tài khoản'}
+                                </TooltipContent>
+                              </Tooltip>
+                              <Badge variant={customer.verified ? 'success' : 'secondary'}>
+                                {customer.verified ? 'Đã xác minh' : 'Chưa xác minh'}
+                              </Badge>
+                            </div>
+                            
+                            <div className="flex items-center gap-3">
+                              <span className="w-24 text-sm text-gray-600">Khóa cược:</span>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <Switch
+                                    checked={customer.betLocked}
+                                    onCheckedChange={() => toggleBetLock(customer.id)}
+                                    className="data-[state=checked]:bg-red-500 data-[state=unchecked]:bg-gray-300"
+                                  />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  {customer.betLocked ? 'Mở khóa cược' : 'Khóa cược'}
+                                </TooltipContent>
+                              </Tooltip>
+                              <Badge variant={customer.betLocked ? 'destructive' : 'secondary'}>
+                                {customer.betLocked ? 'Đã khóa' : 'Mở'}
+                              </Badge>
+                            </div>
+                            
+                            <div className="flex items-center gap-3">
+                              <span className="w-24 text-sm text-gray-600">Khóa rút:</span>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <Switch
+                                    checked={customer.withdrawLocked}
+                                    onCheckedChange={() => toggleWithdrawLock(customer.id)}
+                                    className="data-[state=checked]:bg-red-500 data-[state=unchecked]:bg-gray-300"
+                                  />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  {customer.withdrawLocked ? 'Mở khóa rút' : 'Khóa rút tiền'}
+                                </TooltipContent>
+                              </Tooltip>
+                              <Badge variant={customer.withdrawLocked ? 'destructive' : 'secondary'}>
+                                {customer.withdrawLocked ? 'Đã khóa' : 'Mở'}
+                              </Badge>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="p-4 align-middle">
+                          <div className="flex gap-2">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="hover:bg-blue-50 text-blue-600 hover:text-blue-700"
+                                  onClick={() => handleEditCustomer(customer.id)}
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Chỉnh sửa</TooltipContent>
+                            </Tooltip>
+
+                            <DropdownMenu>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="hover:bg-red-50 text-red-600 hover:text-red-700"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                </TooltipTrigger>
+                                <TooltipContent>Xóa khách hàng</TooltipContent>
+                              </Tooltip>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem 
+                                  className="text-red-600 focus:bg-red-50"
+                                  onClick={() => handleDeleteCustomer(customer.id)}
+                                >
+                                  Xác nhận xóa
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         );
+
+      case 'trades':
+        return (
+          <div className="mb-6 p-6 bg-white rounded-lg shadow">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+              <h2 className="text-xl font-semibold">Lịch sử đặt lệnh</h2>
+              <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                <Input
+                  type="date"
+                  className="w-full"
+                  value={dateRange.start}
+                  onChange={(e) => setDateRange({...dateRange, start: e.target.value})}
+                />
+                <Input
+                  type="date"
+                  className="w-full"
+                  value={dateRange.end}
+                  onChange={(e) => setDateRange({...dateRange, end: e.target.value})}
+                />
+                <Button className="gap-1">
+                  <Filter className="h-4 w-4" />
+                  <span>Áp dụng</span>
+                </Button>
+              </div>
+            </div>
+            <div className="rounded-md border">
+              <div className="relative w-full overflow-auto">
+                <table className="w-full caption-bottom text-sm">
+                  <thead className="[&_tr]:border-b">
+                    <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                      <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">Thời gian</th>
+                      <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">Khách hàng</th>
+                      <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">Số tiền</th>
+                      <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">Loại</th>
+                      <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">Trạng thái</th>
+                    </tr>
+                  </thead>
+                  <tbody className="[&_tr:last-child]:border-0">
+                    {data.trades.map((trade) => (
+                      <tr key={trade.id} className="border-b transition-colors hover:bg-muted/50">
+                        <td className="p-4 align-middle">{trade.time}</td>
+                        <td className="p-4 align-middle">{trade.user}</td>
+                        <td className="p-4 align-middle">{trade.amount.toLocaleString()} đ</td>
+                        <td className="p-4 align-middle">
+                          <Badge variant={trade.type === 'deposit' ? 'success' : 'destructive'}>
+                            {trade.type === 'deposit' ? 'Nạp tiền' : 'Rút tiền'}
+                          </Badge>
+                        </td>
+                        <td className="p-4 align-middle">
+                        <Badge variant={trade.status === 'completed' ? 'success' : 'secondary'}>
+                          {trade.status === 'completed' ? 'Hoàn thành' : 'Đang chờ'}
+                        </Badge>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'deposits':
+        return (
+          <div className="mb-6 p-6 bg-white rounded-lg shadow">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+              <h2 className="text-xl font-semibold">Yêu cầu nạp tiền</h2>
+              <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                <Input
+                  placeholder="Tìm khách hàng"
+                  className="w-full"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-full md:w-[180px]">
+                    <SelectValue placeholder="Trạng thái" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tất cả</SelectItem>
+                    <SelectItem value="pending">Chờ duyệt</SelectItem>
+                    <SelectItem value="approved">Đã duyệt</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button className="gap-1">
+                  <Filter className="h-4 w-4" />
+                  <span>Lọc</span>
+                </Button>
+              </div>
+            </div>
+            <div className="rounded-md border">
+              <div className="relative w-full overflow-auto">
+                <table className="w-full caption-bottom text-sm">
+                  <thead className="[&_tr]:border-b">
+                    <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                      <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">Thời gian</th>
+                      <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">Khách hàng</th>
+                      <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">Số tiền</th>
+                      <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">Ngân hàng</th>
+                      <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">Trạng thái</th>
+                      <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">Hành động</th>
+                    </tr>
+                  </thead>
+                  <tbody className="[&_tr:last-child]:border-0">
+                    {data.depositRequests.map((request) => (
+                      <tr key={request.id} className="border-b transition-colors hover:bg-muted/50">
+                        <td className="p-4 align-middle">{request.time}</td>
+                        <td className="p-4 align-middle">{request.user}</td>
+                        <td className="p-4 align-middle">{request.amount.toLocaleString()} đ</td>
+                        <td className="p-4 align-middle">{request.bank}</td>
+                        <td className="p-4 align-middle">
+                        <Badge variant={request.status === 'Đã duyệt' ? 'success' : 'secondary'}>
+                          {request.status}
+                        </Badge>
+                        </td>
+                        <td className="p-4 align-middle">
+                          <div className="flex gap-2">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="bg-green-500 hover:bg-green-600 text-white gap-1"
+                                  disabled={request.status === 'Đã duyệt'}
+                                  onClick={() => approveDeposit(request.id)}
+                                >
+                                  <Check className="h-4 w-4" />
+                                  <span>Duyệt</span>
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Phê duyệt yêu cầu</TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="bg-red-500 hover:bg-red-600 text-white gap-1"
+                                  disabled={request.status === 'Đã duyệt'}
+                                  onClick={() => rejectDeposit(request.id)}
+                                >
+                                  <X className="h-4 w-4" />
+                                  <span>Từ chối</span>
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Từ chối yêu cầu</TooltipContent>
+                            </Tooltip>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'withdrawals':
+        return (
+          <div className="mb-6 p-6 bg-white rounded-lg shadow">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+              <h2 className="text-xl font-semibold">Yêu cầu rút tiền</h2>
+              <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                <Input
+                  type="date"
+                  className="w-full"
+                  value={dateRange.start}
+                  onChange={(e) => setDateRange({...dateRange, start: e.target.value})}
+                />
+                <Input
+                  type="date"
+                  className="w-full"
+                  value={dateRange.end}
+                  onChange={(e) => setDateRange({...dateRange, end: e.target.value})}
+                />
+                <Button className="gap-1">
+                  <Filter className="h-4 w-4" />
+                  <span>Áp dụng</span>
+                </Button>
+              </div>
+            </div>
+            <div className="rounded-md border">
+              <div className="relative w-full overflow-auto">
+                <table className="w-full caption-bottom text-sm">
+                  <thead className="[&_tr]:border-b">
+                    <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                      <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">Thời gian</th>
+                      <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">Khách hàng</th>
+                      <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">Số tiền</th>
+                      <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">Thực nhận</th>
+                      <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">Ngân hàng</th>
+                      <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">Số TK</th>
+                      <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">Chủ TK</th>
+                      <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">Trạng thái</th>
+                      <th className="h-12 px-4 text-left align-middle font-medium text-gray-500">Hành động</th>
+                    </tr>
+                  </thead>
+                  <tbody className="[&_tr:last-child]:border-0">
+                    {data.withdrawalRequests.map((request) => (
+                      <tr key={request.id} className="border-b transition-colors hover:bg-muted/50">
+                        <td className="p-4 align-middle">{request.time}</td>
+                        <td className="p-4 align-middle">{request.user}</td>
+                        <td className="p-4 align-middle">{request.amount.toLocaleString()} đ</td>
+                        <td className="p-4 align-middle">{request.deducted.toLocaleString()} đ</td>
+                        <td className="p-4 align-middle">{request.bank}</td>
+                        <td className="p-4 align-middle">{request.account}</td>
+                        <td className="p-4 align-middle">{request.fullName}</td>
+                        <td className="p-4 align-middle">
+                        <Badge variant={request.status === 'Đã duyệt' ? 'success' : 'secondary'}>
+                          {request.status}
+                        </Badge>
+                        </td>
+                        <td className="p-4 align-middle">
+                          <div className="flex gap-2">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="bg-green-500 hover:bg-green-600 text-white gap-1"
+                                  disabled={request.status === 'Đã duyệt'}
+                                  onClick={() => approveWithdrawal(request.id)}
+                                >
+                                  <Check className="h-4 w-4" />
+                                  <span>Duyệt</span>
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Phê duyệt yêu cầu</TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="bg-red-500 hover:bg-red-600 text-white gap-1"
+                                  disabled={request.status === 'Đã duyệt'}
+                                  onClick={() => rejectWithdrawal(request.id)}
+                                >
+                                  <X className="h-4 w-4" />
+                                  <span>Từ chối</span>
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Từ chối yêu cầu</TooltipContent>
+                            </Tooltip>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'settings':
+        return (
+          <div className="p-6 bg-white rounded-lg shadow">
+            <div className="max-w-3xl mx-auto space-y-8">
+              <div>
+                <h2 className="text-xl font-semibold mb-4">Thông tin Ngân hàng nạp tiền</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Tên ngân hàng</label>
+                    <Input defaultValue="ABBANK" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Số tài khoản</label>
+                    <Input defaultValue="0387473721" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Chủ tài khoản</label>
+                    <Input defaultValue="VU VAN MIEN" />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h2 className="text-xl font-semibold mb-4">Cấu hình nạp rút</h2>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Số tiền nạp tối thiểu</label>
+                    <Input defaultValue="100.000" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Số tiền rút tối thiểu</label>
+                    <Input defaultValue="100.000" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Số tiền đặt lệnh tối thiểu</label>
+                    <Input defaultValue="100.000" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Link CSKH</label>
+                    <Input defaultValue="https://t.me/DICHVUCSKHSE" />
+                  </div>
+                </div>
+              </div>
+
+              <Button className="w-full md:w-auto bg-blue-600 hover:bg-blue-700">
+                Lưu cấu hình
+              </Button>
+            </div>
+          </div>
+        );
+
       default:
         return null;
     }
@@ -424,7 +783,11 @@ export default function Dashboard({ data }: DashboardProps) {
               <span className="text-sm font-bold">AP</span>
             </div>
           )}
-          <button onClick={toggleSidebar} className="p-1 rounded-md hover:bg-gray-100">
+          <button 
+            onClick={toggleSidebar} 
+            className="p-1 rounded-md hover:bg-gray-100"
+            aria-label={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
+          >
             {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
@@ -434,8 +797,10 @@ export default function Dashboard({ data }: DashboardProps) {
               <li key={item.id}>
                 <button
                   onClick={() => handleNavigation(item.id)}
-                  className={`w-full flex items-center p-3 rounded-md text-sm font-medium ${
-                    activeItem === item.id ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-100'
+                  className={`w-full flex items-center p-3 rounded-md text-sm font-medium transition-colors ${
+                    activeItem === item.id 
+                      ? 'bg-blue-50 text-blue-600' 
+                      : 'text-gray-700 hover:bg-gray-100'
                   }`}
                 >
                   <span className="flex-shrink-0">{item.icon}</span>
@@ -456,20 +821,27 @@ export default function Dashboard({ data }: DashboardProps) {
                 {menuItems.find((item) => item.id === activeItem)?.label || 'Dashboard'}
               </h1>
               <div className="flex items-center space-x-4">
-                <button className="p-2 rounded-full hover:bg-gray-100">
-                  <span className="sr-only">Notifications</span>
-                  <div className="h-6 w-6 bg-gray-200 rounded-full"></div>
-                </button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="p-2 rounded-full hover:bg-gray-100">
+                      <span className="sr-only">Notifications</span>
+                      <div className="h-6 w-6 bg-gray-200 rounded-full"></div>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>Thông báo</TooltipContent>
+                </Tooltip>
                 <div className="flex items-center">
                   <div className="h-8 w-8 rounded-full bg-gray-200"></div>
-                  {sidebarOpen && <span className="ml-2 text-sm font-medium text-gray-700">Admin</span>}
+                  {sidebarOpen && (
+                    <span className="ml-2 text-sm font-medium text-gray-700">Admin</span>
+                  )}
                 </div>
               </div>
             </div>
           </div>
         </header>
 
-        <main className="max-w-7xl mx-auto px-6 py-6 sm:px-6 lg:px-8">
+        <main className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
           {renderContent()}
         </main>
       </div>
