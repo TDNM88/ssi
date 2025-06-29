@@ -27,6 +27,8 @@ const mockData = {
     { time: '28/06/2025 21:31:58', user: 'nguoikhongten22@gmail.com', amount: 3000000, bank: 'Xem', status: 'Chờ duyệt', action: '' },
     { time: '28/06/2025 19:21:08', user: 'ThuThao85', amount: 3000000, bank: 'Xem', status: 'Đã duyệt', action: '' },
     { time: '28/06/2025 19:09:03', user: 'phamhongocchinh16814@gmail.com', amount: 3000000, bank: 'Xem', status: 'Chờ duyệt', action: '' },
+    { time: '28/06/2025 19:04:49', user: 'phamhongocchinh16814@gmail.com', amount: 3000000, bank: 'Xem', status: 'Chờ duyệt', action: '' },
+    { time: '28/06/2025 17:36:15', user: '', amount: 3000000, bank: 'Xem', status: 'Đã duyệt', action: '' },
   ],
   withdrawalRequests: [
     { time: '28/06/2025 23:00:32', user: 'Dinh Thi Tu Anh', amount: 5000000, deducted: 4750000, bank: 'Vietinbank', account: '10487691067', fullName: 'DINH THI TU ANH', status: 'Chờ duyệt', action: '' },
@@ -99,6 +101,9 @@ const menuItems = [
 export default function Dashboard({ data }: DashboardProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeItem, setActiveItem] = useState('dashboard');
+  const [startDate, setStartDate] = useState('01/06/2025');
+  const [endDate, setEndDate] = useState('29/06/2025');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const handleNavigation = (itemId: string) => setActiveItem(itemId);
@@ -207,8 +212,32 @@ export default function Dashboard({ data }: DashboardProps) {
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">Yêu cầu nạp tiền</h2>
               <div className="flex space-x-2">
-                <input type="date" className="border rounded p-1" defaultValue="01/06/2025" />
-                <input type="date" className="border rounded p-1" defaultValue="29/06/2025" />
+                <input
+                  type="text"
+                  placeholder="Khách hàng"
+                  className="border rounded p-1"
+                />
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="border rounded p-1"
+                >
+                  <option value="all">Trạng thái</option>
+                  <option value="Chờ duyệt">Chờ duyệt</option>
+                  <option value="Đã duyệt">Đã duyệt</option>
+                </select>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="border rounded p-1"
+                />
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="border rounded p-1"
+                />
                 <button className="bg-green-500 text-white px-2 py-1 rounded">Áp dụng</button>
               </div>
             </div>
@@ -221,7 +250,7 @@ export default function Dashboard({ data }: DashboardProps) {
                     <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Số tiền</th>
                     <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Bill</th>
                     <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Trạng thái</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Hành động</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -231,10 +260,30 @@ export default function Dashboard({ data }: DashboardProps) {
                       <td className="px-4 py-2 text-sm text-gray-900">{request.user}</td>
                       <td className="px-4 py-2 text-sm text-gray-900">{request.amount.toLocaleString()} đ</td>
                       <td className="px-4 py-2 text-sm text-gray-900">{request.bank}</td>
-                      <td className="px-4 py-2 text-sm text-gray-900">{request.status}</td>
+                      <td className="px-4 py-2 text-sm">
+                        {request.status === 'Chờ duyệt' ? (
+                          <span className="text-yellow-500">Chờ duyệt</span>
+                        ) : (
+                          <span className="text-green-500">Đã duyệt</span>
+                        )}
+                      </td>
                       <td className="px-4 py-2 text-sm text-gray-900">
-                        <Button variant="outline" size="sm">Phê duyệt</Button>
-                        <Button variant="outline" size="sm" className="ml-2">Tư chối</Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="bg-green-500 text-white border-green-500 hover:bg-green-600 mr-2"
+                          disabled={request.status === 'Đã duyệt'}
+                        >
+                          Phê duyệt
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="bg-red-500 text-white border-red-500 hover:bg-red-600"
+                          disabled={request.status === 'Đã duyệt'}
+                        >
+                          Tư chối
+                        </Button>
                       </td>
                     </tr>
                   ))}
@@ -287,7 +336,76 @@ export default function Dashboard({ data }: DashboardProps) {
           </div>
         );
       case 'settings':
-        return <div className="p-4">Cài đặt nội dung ở đây</div>;
+        return (
+          <div className="p-4 bg-white rounded-lg shadow">
+            <div className="max-w-md mx-auto">
+              <h2 className="text-xl font-semibold mb-4">Thông tin ngân hàng nạp tiền</h2>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Tên ngân hàng</label>
+                  <input
+                    type="text"
+                    defaultValue="ABBANK"
+                    className="mt-1 block w-full border rounded-md p-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Số tài khoản</label>
+                  <input
+                    type="text"
+                    defaultValue="0387473721"
+                    className="mt-1 block w-full border rounded-md p-2"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Chủ tài khoản</label>
+                  <input
+                    type="text"
+                    defaultValue="VU VAN MIEN"
+                    className="mt-1 block w-full border rounded-md p-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Câu nhận nạp rút</label>
+                  <input
+                    type="text"
+                    defaultValue="100.000"
+                    className="mt-1 block w-full border rounded-md p-2"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Số tiền nạp tối thiểu</label>
+                  <input
+                    type="text"
+                    defaultValue="100.000"
+                    className="mt-1 block w-full border rounded-md p-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Số tiền đã thêm tối thiểu</label>
+                  <input
+                    type="text"
+                    defaultValue="100.000"
+                    className="mt-1 block w-full border rounded-md p-2"
+                  />
+                </div>
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700">Link CSKH</label>
+                <input
+                  type="text"
+                  defaultValue="https://t.me/DICHVUCSKHSE"
+                  className="mt-1 block w-full border rounded-md p-2"
+                />
+              </div>
+              <Button className="w-full bg-green-500 text-white">Lưu</Button>
+            </div>
+          </div>
+        );
       default:
         return null;
     }
@@ -299,7 +417,7 @@ export default function Dashboard({ data }: DashboardProps) {
       <div className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-white border-r border-gray-200 flex flex-col transition-all duration-300`}>
         <div className="p-4 border-b border-gray-200 flex items-center justify-between">
           {sidebarOpen ? (
-            <h1 className="text-xl font-bold text-gray-800">Admin Panel</h1>
+            <h1 className="text-xl font-bold text-gray-900">Admin Panel</h1>
           ) : (
             <div className="w-8 h-8 bg-blue-600 rounded-md flex items-center justify-center text-white">
               <span className="text-sm font-bold">AP</span>
