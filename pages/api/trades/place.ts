@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { placeTrade } from '@/lib/trade';
+import { getCurrentRound } from '@/lib/round';
 import { placeTradeSchema } from '@/lib/schema';
 import { withRateLimit, requireAuth } from '@/lib/api-utils';
 
@@ -19,15 +20,21 @@ async function handler(req: NextApiRequest, res: NextApiResponse, session: any) 
       });
     }
 
-    const { symbol, amount, direction, duration } = validatedData.data;
+    const { symbol, amount, direction } = validatedData.data;
+
+    // Determine current round
+    const round = await getCurrentRound();
+    if (!round) {
+      return res.status(400).json({ error: 'Round closed' });
+    }
 
     // Place the trade
     const trade = await placeTrade(
       parseInt(session.user.id, 10),
+      round.id,
       symbol,
       amount,
-      direction,
-      duration
+      direction
     );
 
     if (!trade) {

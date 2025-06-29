@@ -4,10 +4,10 @@ import { eq, and, gte, lte, desc, sql } from 'drizzle-orm';
 
 export async function placeTrade(
   userId: number,
+  roundId: number,
   symbol: string,
   amount: number,
-  direction: 'UP' | 'DOWN',
-  duration: number
+  direction: 'UP' | 'DOWN'
 ): Promise<Trade | null> {
   try {
     // Get current price from market data (in a real app, fetch from your market data source)
@@ -38,26 +38,17 @@ export async function placeTrade(
         .insert(trades)
         .values({
           userId,
+          roundId,
           symbol,
           amount: amount.toString(),
           direction,
           entryPrice: currentPrice.toString(),
           status: 'PENDING',
-          duration,
           openTime: new Date(),
         })
         .returning();
 
       if (!trade) throw new Error('Failed to create trade');
-
-      // Schedule trade settlement
-      setTimeout(async () => {
-        try {
-          await settleTrade(trade.id);
-        } catch (error) {
-          console.error('Error settling trade:', error);
-        }
-      }, duration * 1000);
 
       return trade;
     });

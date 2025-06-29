@@ -43,28 +43,28 @@ const NewHeader = () => {
                 <Image 
                   src="/logo.png" 
                   alt="London SSI" 
-                  width={120} 
-                  height={70} 
+                  width={150} 
+                  height={150} 
                   className="mix-blend-multiply"
                 />
               </div>
               
               <nav className="hidden md:flex items-center space-x-3">
                 <button 
-                  className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-blue-600 font-semibold underline underline-offset-4 decoration-2 hover:bg-gray-50"
+                  className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-blue-600 font-semibold text-sm hover:bg-gray-50"
                   onClick={() => router.push('/')}
                 >
                   Trang chủ
                 </button>
                 <button 
-                  className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-blue-600 font-semibold underline underline-offset-4 decoration-2 hover:bg-gray-50"
+                  className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-blue-600 font-semibold text-sm hover:bg-gray-50"
                   onClick={() => router.push('/trade')}
                 >
                   Giao dịch
                 </button>
                 <button 
-                  className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-blue-600 font-semibold underline underline-offset-4 decoration-2 hover:bg-gray-50"
-                  onClick={() => router.push('/news')}
+                  className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-blue-600 font-semibold text-sm hover:bg-gray-50"
+                  onClick={() => router.push('/')}
                 >
                   Tin tức
                 </button>
@@ -120,7 +120,7 @@ const NewHeader = () => {
             <div className="container mx-auto px-4 py-2">
               <div className="flex flex-col space-y-3 py-2">
                 <button 
-                  className="text-left py-2 px-2 text-blue-600 font-medium hover:bg-blue-50 rounded"
+                  className="text-left py-2 px-2 text-blue-600 font-medium hover:bg-blue-50 rounded text-sm"
                   onClick={() => {
                     router.push('/index');
                     setIsMenuOpen(false);
@@ -130,7 +130,7 @@ const NewHeader = () => {
                 </button>
                 <div className="border-t border-gray-200"></div>
                 <button 
-                  className="text-left py-2 px-2 text-blue-600 font-medium hover:bg-blue-50 rounded"
+                  className="text-left py-2 px-2 text-blue-600 font-medium hover:bg-blue-50 rounded text-sm"
                   onClick={() => {
                     router.push('/trade');
                     setIsMenuOpen(false);
@@ -140,7 +140,7 @@ const NewHeader = () => {
                 </button>
                 <div className="border-t border-gray-200"></div>
                 <button 
-                  className="text-left py-2 px-2 text-blue-600 font-medium hover:bg-blue-50 rounded"
+                  className="text-left py-2 px-2 text-blue-600 font-medium hover:bg-blue-50 rounded text-sm"
                   onClick={() => {
                     router.push('/');
                     setIsMenuOpen(false);

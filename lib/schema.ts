@@ -58,11 +58,23 @@ export const transactions = pgTable('transactions', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+// Rounds table
+export const rounds = pgTable('rounds', {
+  id: serial('id').primaryKey(),
+  startTime: timestamp('start_time').notNull(),
+  endTime: timestamp('end_time').notNull(),
+  closePrice: numeric('close_price', { precision: 20, scale: 6 }),
+  status: tradeStatusEnum('status').default('PENDING').notNull(), // PENDING, SETTLED
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  settledAt: timestamp('settled_at'),
+});
+
 // Trades table
 export const trades = pgTable('trades', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   amount: numeric('amount', { precision: 20, scale: 2 }).notNull(),
+  roundId: integer('round_id').notNull().references(() => rounds.id, { onDelete: 'cascade' }),
   symbol: text('symbol').notNull(),
   direction: tradeDirectionEnum('direction').notNull(),
   entryPrice: numeric('entry_price', { precision: 20, scale: 6 }).notNull(),
@@ -148,12 +160,12 @@ export const placeTradeSchema = z.object({
   symbol: z.string(),
   amount: z.number().positive(),
   direction: z.enum(['UP', 'DOWN']),
-  duration: z.number().positive(),
 });
 
 // Export types
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
+export type Round = typeof rounds.$inferSelect;
 export type Trade = typeof trades.$inferSelect;
 export type NewTrade = typeof trades.$inferInsert;
 export type Transaction = typeof transactions.$inferSelect;

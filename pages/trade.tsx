@@ -6,6 +6,7 @@ import { useMockUser, type User } from "@/lib/mock-user";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2, ArrowUp, ArrowDown, Clock, BarChart2, DollarSign, RefreshCw, ChevronDown, Plus, Minus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import useSWR from "swr";
 import Layout from "../components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,6 +39,8 @@ const TIME_FRAMES = [
   { value: "15", label: "15 phút" },
 ];
 
+const fetcher = (url: string) => fetch(url).then(res => res.json());
+
 const Trade = () => {
   const { toast } = useToast();
   const user = useMockUser();
@@ -48,8 +51,12 @@ const Trade = () => {
   const [isConfirming, setIsConfirming] = useState(false);
   const [amount, setAmount] = useState<string>("");
   const [timeFrame, setTimeFrame] = useState("1");
-  const [sessionId, setSessionId] = useState<number>(() => Math.floor(Date.now() / 1000));
-  const [timeLeft, setTimeLeft] = useState<number>(60);
+
+  // ---- Shared round countdown ----
+  const { data: roundData } = useSWR<{ roundId: number; endTime: string }>("/api/rounds/current", fetcher, { refreshInterval: 5000 });
+  const [timeLeft, setTimeLeft] = useState<number>(0);
+  const sessionId = roundData?.roundId ?? 0;
+
   const [selectedAction, setSelectedAction] = useState<"UP" | "DOWN" | null>(null);
   const [marketData, setMarketData] = useState([
     { symbol: "XAU/USD", price: 2337.16, change: 12.5, changePercent: 0.54 },
@@ -72,20 +79,16 @@ const Trade = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // session countdown every second
+  // countdown based on round endTime
   useEffect(() => {
-    const countdown = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          // start new session
-          setSessionId((id) => id + 1);
-          return 60;
-        }
-        return prev - 1;
-      });
+    const timer = setInterval(() => {
+      if (roundData?.endTime) {
+        const diff = Math.max(0, Math.floor((new Date(roundData.endTime).getTime() - Date.now()) / 1000));
+        setTimeLeft(diff);
+      }
     }, 1000);
-    return () => clearInterval(countdown);
-  }, []);
+    return () => clearInterval(timer);
+  }, [roundData]);
 
   const adjustAmount = (delta: number) => {
     setAmount((prev) => {
@@ -115,6 +118,42 @@ const Trade = () => {
     amount?: number;
     profit?: number;
   }>({ status: "idle" });
+
+  // --- Poll active trades when waiting for settlement ---
+  const { data: activeTradesData } = useSWR(tradeResult.status === "processing" ? "/api/trades/active" : null, fetcher, { refreshInterval: 2000 });
+
+  // trade history will be declared later with proper type
+
+  useEffect(() => {
+    if (timeLeft === 0 && selectedAction) {
+      setTradeResult({ status: "processing" });
+    }
+  }, [timeLeft, selectedAction]);
+
+  useEffect(() => {
+    // when processing and no active trades -> settlement done
+    if (tradeResult.status === "processing" && activeTradesData && activeTradesData.trades.length === 0) {
+      // Refresh balance & history after round settled
+      (async () => {
+        try {
+          const [balanceRes, historyRes] = await Promise.all([
+            fetch("/api/users/me").then(r => r.json()),
+            fetch("/api/trades/history?limit=20").then(r => r.json()),
+          ]);
+          if (balanceRes?.user) {
+            setBalance(balanceRes.user.balance);
+          }
+          if (historyRes?.trades) {
+            setTradeHistory(historyRes.trades);
+          }
+        } catch (err) {
+          console.error("Failed to refresh after round", err);
+        } finally {
+          setTradeResult({ status: "idle" });
+        }
+      })();
+    }
+  }, [activeTradesData, tradeResult]);
 
   // ----- Trade history -----
   interface TradeHistoryRecord {
@@ -185,7 +224,8 @@ const Trade = () => {
         clearInterval(timer);
         setTimeout(() => setTradeResult(prev => ({ ...prev, status: "idle" })), 5000);
       } else {
-        setTimeLeft(timeRemaining);
+        // keep trade-specific countdown separate if needed, do not override global round timer
+        // setTimeLeft(timeRemaining);
       }
     }, 1000);
     return () => clearInterval(timer);
@@ -491,34 +531,8 @@ const Trade = () => {
           {/* Right Column - 2/3 width */}
           <div className="lg:col-span-8 space-y-6">
             {/* Market Data Ticker */}
-            <div className="w-full h-[46px] overflow-hidden">
               <TradingViewTickerTape />
-            </div>
             <Card className="bg-white border-gray-300 h-[650px] overflow-hidden">
-              <CardHeader>
-                <CardTitle className="text-gray-900">Cập nhật</CardTitle>
-                <div className="flex items-center space-x-2 text-sm text-gray-400">
-                  <span>Cập nhật: {lastUpdated?.toLocaleTimeString() || "Đang tải..."}</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-gray-400 hover:text-white"
-                    onClick={() => {
-                      setIsLoading(true);
-                      setTimeout(() => {
-                        setMarketData([
-                          { symbol: "XAU/USD", price: 2337.16, change: 12.5, changePercent: 0.54 },
-                          { symbol: "OIL", price: 85.20, change: -0.45, changePercent: -0.53 },
-                        ]);
-                        setLastUpdated(new Date());
-                        setIsLoading(false);
-                      }, 1000);
-                    }}
-                  >
-                    <RefreshCw className={`h-4 w-4 mr-1 ${isLoading ? "animate-spin" : ""}`} />
-                  </Button>
-                </div>
-              </CardHeader>
               <CardContent className="h-full w-full p-0">
                 {isLoading ? (
                   <div className="h-full w-full flex items-center justify-center">
@@ -533,7 +547,7 @@ const Trade = () => {
             {/* ----- History ----- */}
             <Card className="relative z-10 bg-white border-gray-300">
               <CardHeader className="pb-2">
-                <CardTitle className="text-gray-900">Lịch sử lệnh</CardTitle>
+                <CardTitle className="text-sm text-gray-900">Lịch sử lệnh</CardTitle>
               </CardHeader>
               <CardContent>
                 {/* Table Header */}
@@ -576,7 +590,7 @@ const Trade = () => {
             {/* ----- Liquidity / Market Overview ----- */}
             <Card className="bg-white border-gray-300">
               <CardHeader className="pb-2">
-                <CardTitle className="text-gray-900">Thanh khoản</CardTitle>
+                <CardTitle className="text-sm text-gray-900">Thanh khoản</CardTitle>
               </CardHeader>
               <CardContent className="p-0">
                 <LiquidityTable />
