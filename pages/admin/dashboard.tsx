@@ -385,6 +385,14 @@ export default function Dashboard({ data }: DashboardProps) {
                   />
                 </div>
                 <div>
+                  <label className="block text-sm font-medium text-gray-700">Số tiền đặt lệnh tối thiểu</label>
+                  <input
+                    type="text"
+                    defaultValue="100.000"
+                    className="mt-2 block w-full border border-gray-300 rounded-md p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+                <div>
                   <label className="block text-sm font-medium text-gray-700">Link CSKH</label>
                   <input
                     type="text"
