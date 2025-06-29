@@ -339,14 +339,14 @@ export default function Dashboard({ data }: DashboardProps) {
         return (
           <div className="p-4 bg-white rounded-lg shadow">
             <div className="max-w-md mx-auto">
-              <h2 className="text-xl font-semibold mb-4">Thông tin ngân hàng nạp tiền</h2>
-              <div className="grid grid-cols-2 gap-4 mb-4">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Thông tin ngân hàng nạp tiền</h2>
+              <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Tên ngân hàng</label>
                   <input
                     type="text"
                     defaultValue="ABBANK"
-                    className="mt-1 block w-full border rounded-md p-2"
+                    className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
                 <div>
@@ -354,55 +354,45 @@ export default function Dashboard({ data }: DashboardProps) {
                   <input
                     type="text"
                     defaultValue="0387473721"
-                    className="mt-1 block w-full border rounded-md p-2"
+                    className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Chủ tài khoản</label>
                   <input
                     type="text"
                     defaultValue="VU VAN MIEN"
-                    className="mt-1 block w-full border rounded-md p-2"
+                    className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Câu nhận nạp rút</label>
-                  <input
-                    type="text"
-                    defaultValue="100.000"
-                    className="mt-1 block w-full border rounded-md p-2"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Số tiền nạp tối thiểu</label>
                   <input
                     type="text"
                     defaultValue="100.000"
-                    className="mt-1 block w-full border rounded-md p-2"
+                    className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Số tiền đã thêm tối thiểu</label>
+                  <label className="block text-sm font-medium text-gray-700">Số tiền rút tối thiểu</label>
                   <input
                     type="text"
                     defaultValue="100.000"
-                    className="mt-1 block w-full border rounded-md p-2"
+                    className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Link CSKH</label>
+                  <input
+                    type="text"
+                    defaultValue="https://t.me/DICHVUCSKHSE"
+                    className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-sm text-gray-900 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
               </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">Link CSKH</label>
-                <input
-                  type="text"
-                  defaultValue="https://t.me/DICHVUCSKHSE"
-                  className="mt-1 block w-full border rounded-md p-2"
-                />
-              </div>
-              <Button className="w-full bg-green-500 text-white">Lưu</Button>
+              <Button className="mt-6 w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700">
+                Lưu
+              </Button>
             </div>
           </div>
         );
