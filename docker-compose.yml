@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:3000/api
+      - NEXT_PUBLIC_WS_URL=ws://backend:3000/trade
+    depends_on:
+      - backend
+    networks:
+      - trading-network
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3000"
+    environment:
+      - MONGODB_URI=mongodb+srv://ssi:hanoi12345@tradingcluster.edufyno.mongodb.net/?retryWrites=true&w=majority&appName=TradingCluster
+      - JWT_SECRET=secret
+      - PORT=3000
+    depends_on:
+      - mongo
+    networks:
+      - trading-network
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  mongo:
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - trading-network
+
+networks:
+  trading-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
