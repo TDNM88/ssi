@@ -12,8 +12,8 @@ const nextConfig = {
       {
         source: '/ws/:path*',
         destination: process.env.NODE_ENV === 'production'
-          ? 'wss://inal-hsc-api.vercel.app/:path*'
-          : 'ws://localhost:3000/:path*'
+          ? 'https://inal-hsc-api.vercel.app/:path*'
+          : 'http://localhost:3000/:path*'
       }
     ];
   },

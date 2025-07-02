@@ -10,7 +10,7 @@
     },
     { 
       "source": "/ws/:path*", 
-      "destination": "wss://inal-hsc-api.vercel.app/:path*" 
+      "destination": "https://inal-hsc-api.vercel.app/:path*" 
     }
   ],
   "env": {
