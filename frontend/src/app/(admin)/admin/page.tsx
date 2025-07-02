@@ -1026,7 +1026,7 @@ function WithdrawalRequestsPage({ startDate, setStartDate, endDate, setEndDate, 
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {withdrawals.map((withdrawal: any, index: number)) => (
+                {withdrawals.map((withdrawal: any, index: number) => (
                   <TableRow key={index}>
                     <TableCell className="text-white">{new Date(withdrawal.time).toLocaleString()}</TableCell>
                     <TableCell className="text-teal-500">{withdrawal.customer}</TableCell>
